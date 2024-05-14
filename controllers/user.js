@@ -177,7 +177,7 @@ exports.postUpdateProfile = async (req, res, next) => {
   }
   req.body.email = validator.normalizeEmail(req.body.email, { gmail_remove_dots: false });
   try {
-    const user = await User.findById(req.user.id);
+    const user = await User.findByPk(req.user.id); // Replace findById with findByPk due to Postgres use instead of MongoDB
     if (user.email !== req.body.email) user.emailVerified = false;
     user.email = req.body.email || '';
     user.profile.name = req.body.name || '';
@@ -211,7 +211,7 @@ exports.postUpdatePassword = async (req, res, next) => {
     return res.redirect('/account');
   }
   try {
-    const user = await User.findById(req.user.id);
+    const user = await User.findByPk(req.user.id); // Replace findById with findByPk due to Postgres use instead of MongoDB
     user.password = req.body.password;
     await user.save();
     req.flash('success', { msg: 'Password has been changed.' });
@@ -249,7 +249,7 @@ exports.getOauthUnlink = async (req, res, next) => {
   try {
     let { provider } = req.params;
     provider = validator.escape(provider);
-    const user = await User.findById(req.user.id);
+    const user = await User.findByPk(req.user.id); // Replace findById with findByPk due to Postgres use instead of MongoDB
     user[provider.toLowerCase()] = undefined;
     const tokensWithoutProviderToUnlink = user.tokens.filter((token) =>
       token.kind !== provider.toLowerCase());
