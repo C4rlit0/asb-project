@@ -3,7 +3,6 @@ const refresh = require('passport-oauth2-refresh');
 const axios = require('axios');
 
 // include Airtable config file
-const airtable = require('../config/airtable');
 
 const { Strategy: LocalStrategy } = require('passport-local');
 const { Strategy: GitHubStrategy } = require('passport-github2');
@@ -11,6 +10,7 @@ const { OAuth2Strategy: GoogleStrategy } = require('passport-google-oauth');
 const { Strategy: OAuth2Strategy } = require('passport-oauth2');
 const _ = require('lodash');
 const moment = require('moment');
+const airtable = require('./airtable');
 
 const User = require('../models/User');
 
@@ -47,7 +47,6 @@ passport.use(new LocalStrategy({ usernameField: 'email' }, async (email, passwor
     return done(err);
   }
 }));
-
 
 /**
  * OAuth Strategy Overview
@@ -233,33 +232,32 @@ refresh.use('google', googleStrategyConfig);
  */
 
 const airtableStrategyConfig = new OAuth2Strategy({
-    authorizationURL: 'https://airtable.com/oauth2/v1/authorize', // Ajustez selon la doc d'Airtable
-    tokenURL: 'https://airtable.com/oauth2/v1/token', // Ajustez selon la doc d'Airtable
-    clientID: process.env.AIRTABLE_CLIENT_ID,
-    clientSecret: process.env.AIRTABLE_CLIENT_SECRET,
-    callbackURL: `${process.env.BASE_URL}/auth/airtable/callback`,
-    scope: process.env.AIRTABLE_SCOPE, // Ajustez selon la doc d'Airtable
-    passReqToCallback: true, // Pour passer la requête au callback
-    state: true,
-    pkce: true
-  }, (req, accessToken, refreshToken, params, profile, done) => {
-    
-    console.log('req query: ', req.query);
-    console.log('accessToken: ', accessToken)
-    console.log('refreshToken: ', refreshToken)
-    console.log('params: ', params)
-    
-    // Si params n'est pas vide, on a reçu un code d'autorisation
-    if (params) {
-      // On fait un appel à l'API d'Airtable pour récupérer les informations de l'utilisateur
-      axios.get('https://api.airtable.com/v0/meta/whoami', {
-        headers: {
-            "Authorization": "Bearer " + accessToken
-        }
-      })
+  authorizationURL: 'https://airtable.com/oauth2/v1/authorize', // Ajustez selon la doc d'Airtable
+  tokenURL: 'https://airtable.com/oauth2/v1/token', // Ajustez selon la doc d'Airtable
+  clientID: process.env.AIRTABLE_CLIENT_ID,
+  clientSecret: process.env.AIRTABLE_CLIENT_SECRET,
+  callbackURL: `${process.env.BASE_URL}/auth/airtable/callback`,
+  scope: process.env.AIRTABLE_SCOPE, // Ajustez selon la doc d'Airtable
+  passReqToCallback: true, // Pour passer la requête au callback
+  state: true,
+  pkce: true
+}, (req, accessToken, refreshToken, params, profile, done) => {
+  console.log('req query: ', req.query);
+  console.log('accessToken: ', accessToken);
+  console.log('refreshToken: ', refreshToken);
+  console.log('params: ', params);
+
+  // Si params n'est pas vide, on a reçu un code d'autorisation
+  if (params) {
+    // On fait un appel à l'API d'Airtable pour récupérer les informations de l'utilisateur
+    axios.get('https://api.airtable.com/v0/meta/whoami', {
+      headers: {
+        Authorization: `Bearer ${accessToken}`
+      }
+    })
       .then((response) => {
         // Retreive the user infos from the response
-        let airtableUser = response.data;
+        const airtableUser = response.data;
         console.log('airtableUser: ', airtableUser);
 
         const user = new User({
@@ -268,7 +266,7 @@ const airtableStrategyConfig = new OAuth2Strategy({
         });
         // On vérifie si l'utilisateur est déjà enregistré dans la base de données en le cherchant par son email avec 'where'
         User.findOne({ where: { email: user.email } })
-          .then(existingUser => {
+          .then((existingUser) => {
             if (existingUser) {
               // Si l'utilisateur existe déjà, on le connecte
               console.log('User already exists');
@@ -284,49 +282,48 @@ const airtableStrategyConfig = new OAuth2Strategy({
                   done(null, user);
                 });
               })
-              .catch(err => done(err));
+              .catch((err) => done(err));
           })
-          .catch(err => done(err));
+          .catch((err) => done(err));
       })
       .catch((error) => {
         console.error('Error while fetching user infos from Airtable API: ', error);
         done(error);
       });
-    }
-  });
-  
-    // User.findById(req.user._id, (err, user) => {
-    //   if (err) { return done(err); }
+  }
+});
 
-    //   // Logique pour mettre à jour ou ajouter le token d'Airtable à l'utilisateur
-    //   const existingToken = user.tokens.find(token => token.kind === 'airtable');
-      
-    //   if (existingToken) {
-    //     existingToken.accessToken = accessToken;
-    //     existingToken.accessTokenExpires = moment().add(params.expires_in, 'seconds').toDate();
-    //     existingToken.refreshToken = refreshToken;
-    //     existingToken.refreshTokenExpires = moment().add(params.x_refresh_token_expires_in, 'seconds').toDate();
-    //   } else {
-    //     user.tokens.push({
-    //       kind: 'airtable',
-    //       accessToken,
-    //       accessTokenExpires: moment().add(params.expires_in, 'seconds').toDate(),
-    //       refreshToken,
-    //       refreshTokenExpires: moment().add(params.x_refresh_token_expires_in, 'seconds').toDate()
-    //     });
-    //   }
+// User.findById(req.user._id, (err, user) => {
+//   if (err) { return done(err); }
 
-    //   user.save((err) => {
-    //     if (err) { return done(err); }
-    //     return done(null, user);
-    //   });
-    // });
+//   // Logique pour mettre à jour ou ajouter le token d'Airtable à l'utilisateur
+//   const existingToken = user.tokens.find(token => token.kind === 'airtable');
+
+//   if (existingToken) {
+//     existingToken.accessToken = accessToken;
+//     existingToken.accessTokenExpires = moment().add(params.expires_in, 'seconds').toDate();
+//     existingToken.refreshToken = refreshToken;
+//     existingToken.refreshTokenExpires = moment().add(params.x_refresh_token_expires_in, 'seconds').toDate();
+//   } else {
+//     user.tokens.push({
+//       kind: 'airtable',
+//       accessToken,
+//       accessTokenExpires: moment().add(params.expires_in, 'seconds').toDate(),
+//       refreshToken,
+//       refreshTokenExpires: moment().add(params.x_refresh_token_expires_in, 'seconds').toDate()
+//     });
+//   }
+
+//   user.save((err) => {
+//     if (err) { return done(err); }
+//     return done(null, user);
+//   });
+// });
 //   }
 // );
 
 passport.use('airtable', airtableStrategyConfig);
 refresh.use('airtable', airtableStrategyConfig);
-
 
 /**
  * Login Required middleware.

@@ -7,7 +7,7 @@ const User = require('../models/User');
 
 exports.getDashboard = async (req, res) => {
   // Function to get all saved automations from GitHub
-  
+
   // Get the user from the database
   const user = await User.findByPk(req.user.id);
   const settings = user.getSettings();
@@ -16,17 +16,16 @@ exports.getDashboard = async (req, res) => {
   const response = await fetch(`https://api.github.com/repos/${settings.github.repository.owner}/${settings.github.repository.name}/contents/`, {
     method: 'GET',
     headers: {
-      'Authorization': `token ${settings.github.token}`
+      Authorization: `token ${settings.github.token}`
     }
   });
 
   // Extract repo infos from response
   const automations = await response.json();
   console.log('automations', automations);
-  
+
   res.render('dashboard', {
     title: 'Dashboard',
-    automations: automations,
+    automations,
   });
-
-}
+};

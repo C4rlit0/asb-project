@@ -101,7 +101,6 @@ User.prototype.disableGithub = function () {
   this.setSettings(settings);
 };
 
-
 // Synchronisation de la base de données avec le modèle
 User.sync()
   .then(() => {
@@ -111,7 +110,7 @@ User.sync()
     console.error('Erreur lors de la synchronisation de la base de données:', error);
   });
 
-User.prototype.comparePassword = async function(candidatePassword) {
+User.prototype.comparePassword = async function (candidatePassword) {
   return await bcrypt.compare(candidatePassword, this.password);
 };
 

@@ -1,13 +1,12 @@
 const validator = require('validator');
-const User = require('../models/User');
 const { set } = require('lodash');
+const User = require('../models/User');
 
 /**
  * GET /
  * Onboarding page.
  */
 exports.getOnboarding = async (req, res) => {
-
   // Get the user from the database
   const user = await User.findByPk(req.user.id);
 
@@ -18,11 +17,10 @@ exports.getOnboarding = async (req, res) => {
   // Render onboarding page only if user haven't already done it
   if (user.getOnboardingStatus()) {
     return res.redirect('/dashboard');
-  } else {
-    res.render('onboarding', {
-      title: 'Let\'s started!'
-    });
   }
+  res.render('onboarding', {
+    title: 'Let\'s started!'
+  });
 };
 
 /**
@@ -63,7 +61,7 @@ exports.postOnboarding = async (req, res, next) => {
   try {
     // Get the user from the database
     const user = await User.findByPk(req.user.id);
-    
+
     if (!user) {
       throw new Error('User not found.');
     }
@@ -76,10 +74,10 @@ exports.postOnboarding = async (req, res, next) => {
       const response = await fetch(`https://api.github.com/repos/${username}/${req.body.floatingInputRepo.split('/')[4]}`, {
         method: 'GET',
         headers: {
-          'Authorization': `token ${req.body.floatingInputPat}`
+          Authorization: `token ${req.body.floatingInputPat}`
         }
       });
-      
+
       // Extract repo infos from response
       const repo = await response.json();
       console.log('repo', repo);
@@ -95,19 +93,18 @@ exports.postOnboarding = async (req, res, next) => {
         creationDate: repo.created_at,
         private: repo.private,
       };
-      
-      
+
       // If the response is 200, we can save the Github settings
       user.setSettings({
         github: {
           enabled: false,
-          username: username,
+          username,
           token: req.body.floatingInputPat,
           repository: repoInfos,
         }
       });
       await user.save();
-      
+
       req.flash('success', { msg: 'Your repo/PAT is valid!' });
       // Redirect to the next step of the onboarding and pass the repo infos
       return res.redirect(`/onboarding/nextstep?step=2&repo=${repoInfos.name}&owner=${repoInfos.owner}&description=${repoInfos.description}&creationDate=${repoInfos.creationDate}&private=${repoInfos.private}`);
@@ -132,13 +129,13 @@ exports.postOnboardingNextStep = async (req, res, next) => {
   try {
     // Get the user from the database
     const user = await User.findByPk(req.user.id);
-    
+
     if (!user) {
       throw new Error('User not found.');
     }
 
     // If user validate the repo infos, we can enable the Github integration and set onboarding status to true
-    let settings = user.getSettings();
+    const settings = user.getSettings();
     user.setSettings({
       github: {
         enabled: true,
@@ -159,4 +156,4 @@ exports.postOnboardingNextStep = async (req, res, next) => {
     req.flash('errors', { msg: 'An error occurred while updating your settings.' });
     return res.redirect('/onboarding');
   }
-}
+};

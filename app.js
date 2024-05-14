@@ -27,12 +27,11 @@ const pgSession = require('connect-pg-simple')(session);
  */
 i18n.configure({
   locales: ['en', 'fr'],
-  directory: __dirname + '/locales',
+  directory: `${__dirname}/locales`,
   defaultLocale: 'en',
   queryParameter: 'lang',
   cookie: 'locale'
 });
-
 
 const upload = multer({ dest: path.join(__dirname, 'uploads') });
 
@@ -95,11 +94,9 @@ pool.on('error', (err, client) => {
 });
 
 // Exécuter une requête SQL pour créer la table "session"
-pool.query(
-  'CREATE TABLE IF NOT EXISTS session (sid varchar NOT NULL, sess json NOT NULL, expire timestamp(6) NOT NULL, PRIMARY KEY (sid))'
-).then(() => {
+pool.query('CREATE TABLE IF NOT EXISTS session (sid varchar NOT NULL, sess json NOT NULL, expire timestamp(6) NOT NULL, PRIMARY KEY (sid))').then(() => {
   console.log('Table "session" créée avec succès');
-}).catch(err => {
+}).catch((err) => {
   console.error('Erreur lors de la création de la table "session" :', err);
 });
 
@@ -127,7 +124,7 @@ app.use(session({
   },
 
   store: new pgSession({
-    pool: pool,
+    pool,
     tableName: 'session'
   }),
 }));
@@ -168,7 +165,7 @@ app.use((req, res, next) => {
 });
 app.use('/', express.static(path.join(__dirname, 'public'), { maxAge: 31557600000 }));
 app.use('/js/lib', express.static(path.join(__dirname, 'node_modules/chart.js/dist'), { maxAge: 31557600000 }));
-app.use('/js/lib', express.static(path.join(__dirname, 'node_modules/popper.js/dist/umd'), { maxAge: 31557600000 }));
+app.use('/js/lib', express.static(path.join(__dirname, 'node_modules/popper.js/dist/esm'), { maxAge: 31557600000 }));
 app.use('/js/lib', express.static(path.join(__dirname, 'node_modules/bootstrap/dist/js'), { maxAge: 31557600000 }));
 app.use('/js/lib', express.static(path.join(__dirname, 'node_modules/jquery/dist'), { maxAge: 31557600000 }));
 app.use('/webfonts', express.static(path.join(__dirname, 'node_modules/@fortawesome/fontawesome-free/webfonts'), { maxAge: 31557600000 }));

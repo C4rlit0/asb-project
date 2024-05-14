@@ -81,7 +81,7 @@ exports.postLogin = (req, res, next) => {
       return res.redirect('/login');
     }
     req.logIn(user, (err) => {
-      console.log("hello user :", user)
+      console.log('hello user :', user);
       if (err) { return next(err); }
       req.flash('success', { msg: 'Success! You are logged in.' });
       res.redirect(req.session.returnTo || '/');
@@ -195,7 +195,6 @@ exports.postUpdateProfile = async (req, res, next) => {
     next(err);
   }
 };
-
 
 /**
  * POST /account/password
@@ -406,7 +405,6 @@ exports.getVerifyEmail = async (req, res, next) => {
 
     req.flash('success', { msg: 'An e-mail has been sent to you with further instructions.' });
     return res.redirect('/account');
-
   } catch (error) {
     console.error(error);
     req.flash('errors', { msg: 'An error occurred while verifying the email.' });
@@ -429,29 +427,25 @@ exports.postReset = (req, res, next) => {
     return res.redirect('back');
   }
 
-  const resetPassword = () => {
-    return User.findOne({ passwordResetToken: req.params.token })
-      .where('passwordResetExpires').gt(Date.now())
-      .then((user) => {
-        if (!user) {
-          req.flash('errors', { msg: 'Password reset token is invalid or has expired.' });
-          return res.redirect('back');
-        }
-        user.password = req.body.password;
-        user.passwordResetToken = undefined;
-        user.passwordResetExpires = undefined;
-        return user.save().then(() => {
-          return new Promise((resolve, reject) => {
-            req.logIn(user, (err) => {
-              if (err) {
-                return reject(err);
-              }
-              resolve(user);
-            });
-          });
+  const resetPassword = () => User.findOne({ passwordResetToken: req.params.token })
+    .where('passwordResetExpires').gt(Date.now())
+    .then((user) => {
+      if (!user) {
+        req.flash('errors', { msg: 'Password reset token is invalid or has expired.' });
+        return res.redirect('back');
+      }
+      user.password = req.body.password;
+      user.passwordResetToken = undefined;
+      user.passwordResetExpires = undefined;
+      return user.save().then(() => new Promise((resolve, reject) => {
+        req.logIn(user, (err) => {
+          if (err) {
+            return reject(err);
+          }
+          resolve(user);
         });
-      });
-  };
+      }));
+    });
 
   const sendResetPasswordEmail = (user) => {
     if (!user) {

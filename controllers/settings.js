@@ -6,14 +6,13 @@ const User = require('../models/User');
  * Settings page.
  */
 exports.getSettings = async (req, res) => {
-
   // Get the user from the database
   const user = await User.findByPk(req.user.id);
   const settings = user.getSettings();
 
   res.render('account/settings', {
     title: 'Update your settings',
-    settings: settings,
+    settings,
   });
 };
 
@@ -35,7 +34,7 @@ exports.postSettings = async (req, res, next) => {
   try {
     // Get the user from the database
     const user = await User.findByPk(req.user.id);
-    
+
     if (!user) {
       throw new Error('User not found.');
     }
@@ -47,7 +46,7 @@ exports.postSettings = async (req, res, next) => {
     const response = await fetch(`https://api.github.com/repos/${username}/${req.body.floatingInputRepo.split('/')[4]}`, {
       method: 'GET',
       headers: {
-        'Authorization': `token ${req.body.floatingInputPat}`
+        Authorization: `token ${req.body.floatingInputPat}`
       }
     });
 
@@ -71,19 +70,18 @@ exports.postSettings = async (req, res, next) => {
       user.setSettings({
         github: {
           enabled: false,
-          username: username,
+          username,
           token: req.body.floatingInputPat,
         }
       });
       await user.save();
-      
+
       req.flash('success', { msg: 'Your repo/PAT is valid!' });
       // Redirect to the next step of the onboarding and pass the repo infos
       return res.redirect(`/onboarding/nextstep?step=2&repo=${repoInfos.name}&owner=${repoInfos.owner}&description=${repoInfos.description}&creationDate=${repoInfos.creationDate}&private=${repoInfos.private}`);
-    } else {
-      req.flash('errors', { msg: 'An error occurred while updating your settings. Please contact me at charly@keeply.fr' });
-      return res.redirect('/onboarding');
     }
+    req.flash('errors', { msg: 'An error occurred while updating your settings. Please contact me at charly@keeply.fr' });
+    return res.redirect('/onboarding');
   } catch (error) {
     console.error(error);
     req.flash('errors', { msg: 'An error occurred while updating your settings.' });
