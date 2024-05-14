@@ -1,7 +1,6 @@
 const { promisify } = require('util');
 const crypto = require('crypto');
 const nodemailer = require('nodemailer');
-const nodemailerSendgrid = require('nodemailer-sendgrid');
 const passport = require('passport');
 const _ = require('lodash');
 const validator = require('validator');
@@ -13,45 +12,39 @@ const randomBytesAsync = promisify(crypto.randomBytes);
 /**
  * Helper Function to Send Mail.
  */
-const sendMail = async (settings) => {
-  let transportConfig;
-  if (process.env.SENDGRID_API_KEY) {
-    transportConfig = nodemailerSendgrid({
-      apiKey: process.env.SENDGRID_API_KEY
-    });
-  } else {
-    transportConfig = {
-      host: "arsenic.o2switch.net",
-      port: 465,
-      secure: true,
-      auth: {
-        type: 'login',
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASSWORD
-      },
-      debug: true
-    };
-  }
+const sendMail = (settings) => {
+  const transportConfig = {
+    host: process.env.SMTP_HOST,
+    port: 465,
+    secure: true,
+    auth: {
+      type: 'login',
+      user: process.env.SMTP_USER,
+      pass: process.env.SMTP_PASSWORD
+    }
+  };
+
   let transporter = nodemailer.createTransport(transportConfig);
 
-  try {
-    await transporter.sendMail(settings.mailOptions);
-    settings.req.flash(settings.successfulType, { msg: settings.successfulMsg });
-  } catch (err) {
-    if (err.message === 'self signed certificate in certificate chain') {
-      console.log('WARNING: Self signed certificate in certificate chain. Retrying with the self signed certificate. Use a valid certificate if in production.');
-      transportConfig.tls = transportConfig.tls || {};
-      transportConfig.tls.rejectUnauthorized = false;
-      transporter = nodemailer.createTransport(transportConfig);
-      return transporter.sendMail(settings.mailOptions)
-        .then(() => {
-          settings.req.flash(settings.successfulType, { msg: settings.successfulMsg });
-        });
-    }
-    console.log(settings.loggingError, err);
-    settings.req.flash(settings.errorType, { msg: settings.errorMsg });
-    return err;
-  }
+  return transporter.sendMail(settings.mailOptions)
+    .then(() => {
+      settings.req.flash(settings.successfulType, { msg: settings.successfulMsg });
+    })
+    .catch((err) => {
+      if (err.message === 'self signed certificate in certificate chain') {
+        console.log('WARNING: Self signed certificate in certificate chain. Retrying with the self signed certificate. Use a valid certificate if in production.');
+        transportConfig.tls = transportConfig.tls || {};
+        transportConfig.tls.rejectUnauthorized = false;
+        transporter = nodemailer.createTransport(transportConfig);
+        return transporter.sendMail(settings.mailOptions)
+          .then(() => {
+            settings.req.flash(settings.successfulType, { msg: settings.successfulMsg });
+          });
+      }
+      console.log(settings.loggingError, err);
+      settings.req.flash(settings.errorType, { msg: settings.errorMsg });
+      return err;
+    });
 };
 
 /**
@@ -101,11 +94,13 @@ exports.postLogin = (req, res, next) => {
  * Log out.
  */
 exports.logout = (req, res) => {
-  req.logout();
-  req.session.destroy((err) => {
-    if (err) console.log('Error : Failed to destroy the session during logout.', err);
-    req.user = null;
-    res.redirect('/');
+  req.logout((err) => {
+    if (err) console.log('Error : Failed to logout.', err);
+    req.session.destroy((err) => {
+      if (err) console.log('Error : Failed to destroy the session during logout.', err);
+      req.user = null;
+      res.redirect('/');
+    });
   });
 };
 
@@ -126,41 +121,36 @@ exports.getSignup = (req, res) => {
  * POST /signup
  * Create a new local account.
  */
-exports.postSignup = (req, res, next) => {
+exports.postSignup = async (req, res, next) => {
   const validationErrors = [];
   if (!validator.isEmail(req.body.email)) validationErrors.push({ msg: 'Please enter a valid email address.' });
   if (!validator.isLength(req.body.password, { min: 8 })) validationErrors.push({ msg: 'Password must be at least 8 characters long' });
-  if (req.body.password !== req.body.confirmPassword) validationErrors.push({ msg: 'Passwords do not match' });
-
+  if (validator.escape(req.body.password) !== validator.escape(req.body.confirmPassword)) validationErrors.push({ msg: 'Passwords do not match' });
   if (validationErrors.length) {
     req.flash('errors', validationErrors);
     return res.redirect('/signup');
   }
   req.body.email = validator.normalizeEmail(req.body.email, { gmail_remove_dots: false });
-
-  const user = new User({
-    email: req.body.email,
-    password: req.body.password
-  });
-
-  User.findOne({ where: { email: req.body.email } })
-    .then(existingUser => {
-      if (existingUser) {
-        req.flash('errors', { msg: 'Account with that email address already exists.' });
-        return res.redirect('/signup');
+  try {
+    const existingUser = await User.findOne({ email: req.body.email });
+    if (existingUser) {
+      req.flash('errors', { msg: 'Account with that email address already exists.' });
+      return res.redirect('/signup');
+    }
+    const user = new User({
+      email: req.body.email,
+      password: req.body.password
+    });
+    await user.save();
+    req.logIn(user, (err) => {
+      if (err) {
+        return next(err);
       }
-      user.save()
-        .then(() => {
-          req.logIn(user, (err) => {
-            if (err) {
-              return next(err);
-            }
-            res.redirect('/');
-          });
-        })
-        .catch(err => next(err));
-    })
-    .catch(err => next(err));
+      res.redirect('/');
+    });
+  } catch (err) {
+    next(err);
+  }
 };
 
 /**
@@ -185,43 +175,24 @@ exports.postUpdateProfile = async (req, res, next) => {
     req.flash('errors', validationErrors);
     return res.redirect('/account');
   }
-
+  req.body.email = validator.normalizeEmail(req.body.email, { gmail_remove_dots: false });
   try {
-    const user = await User.findByPk(req.user.id);
-    const profile = {
-      name: '',
-      gender: '',
-      location: '',
-      website: ''
-    }
-
-    if (!user) {
-      throw new Error('User not found.');
-    }
-
-    if (user.email !== req.body.email) {
-      user.emailVerified = false;
-    }
-
-    console.log('USER: ', user)
-
+    const user = await User.findById(req.user.id);
+    if (user.email !== req.body.email) user.emailVerified = false;
     user.email = req.body.email || '';
-
-    profile.name = req.body.name || '';
-    profile.gender = req.body.gender || '';
-    profile.location = req.body.location || '';
-    profile.website = req.body.website || '';
-
-    user.profile = profile || {};
-
+    user.profile.name = req.body.name || '';
+    user.profile.gender = req.body.gender || '';
+    user.profile.location = req.body.location || '';
+    user.profile.website = req.body.website || '';
     await user.save();
-
     req.flash('success', { msg: 'Profile information has been updated.' });
-    return res.redirect('/account');
-  } catch (error) {
-    console.error(error);
-    req.flash('errors', { msg: 'An error occurred while updating the profile.' });
-    return res.redirect('/account');
+    res.redirect('/account');
+  } catch (err) {
+    if (err.code === 11000) {
+      req.flash('errors', { msg: 'The email address you have entered is already associated with an account.' });
+      return res.redirect('/account');
+    }
+    next(err);
   }
 };
 
@@ -233,28 +204,20 @@ exports.postUpdateProfile = async (req, res, next) => {
 exports.postUpdatePassword = async (req, res, next) => {
   const validationErrors = [];
   if (!validator.isLength(req.body.password, { min: 8 })) validationErrors.push({ msg: 'Password must be at least 8 characters long' });
-  if (req.body.password !== req.body.confirmPassword) validationErrors.push({ msg: 'Passwords do not match' });
+  if (validator.escape(req.body.password) !== validator.escape(req.body.confirmPassword)) validationErrors.push({ msg: 'Passwords do not match' });
 
   if (validationErrors.length) {
     req.flash('errors', validationErrors);
     return res.redirect('/account');
   }
-
   try {
-    const user = await User.findByPk(req.user.id);
-    if (!user) {
-      throw new Error('User not found.');
-    }
-
+    const user = await User.findById(req.user.id);
     user.password = req.body.password;
     await user.save();
-
     req.flash('success', { msg: 'Password has been changed.' });
-    return res.redirect('/account');
-  } catch (error) {
-    console.error(error);
-    req.flash('errors', { msg: 'An error occurred while updating the password.' });
-    return res.redirect('/account');
+    res.redirect('/account');
+  } catch (err) {
+    next(err);
   }
 };
 
@@ -264,18 +227,17 @@ exports.postUpdatePassword = async (req, res, next) => {
  */
 exports.postDeleteAccount = async (req, res, next) => {
   try {
-    const user = await User.findByPk(req.user.id);
-    if (!user) {
-      throw new Error('User not found.');
-    }
-    await user.destroy();
-    req.logout();
-    req.flash('info', { msg: 'Your account has been deleted.' });
-    res.redirect('/');
-  } catch (error) {
-    console.error(error);
-    req.flash('errors', { msg: 'An error occurred while deleting the account.' });
-    return res.redirect('/account');
+    await User.deleteOne({ _id: req.user.id });
+    req.logout((err) => {
+      if (err) console.log('Error: Failed to logout.', err);
+      req.session.destroy((err) => {
+        if (err) console.log('Error: Failed to destroy the session during account deletion.', err);
+        req.user = null;
+        res.redirect('/');
+      });
+    });
+  } catch (err) {
+    next(err);
   }
 };
 
@@ -283,10 +245,11 @@ exports.postDeleteAccount = async (req, res, next) => {
  * GET /account/unlink/:provider
  * Unlink OAuth provider.
  */
-exports.getOauthUnlink = (req, res, next) => {
-  const { provider } = req.params;
-  User.findById(req.user.id, (err, user) => {
-    if (err) { return next(err); }
+exports.getOauthUnlink = async (req, res, next) => {
+  try {
+    let { provider } = req.params;
+    provider = validator.escape(provider);
+    const user = await User.findById(req.user.id);
     user[provider.toLowerCase()] = undefined;
     const tokensWithoutProviderToUnlink = user.tokens.filter((token) =>
       token.kind !== provider.toLowerCase());
@@ -299,17 +262,19 @@ exports.getOauthUnlink = (req, res, next) => {
     ) {
       req.flash('errors', {
         msg: `The ${_.startCase(_.toLower(provider))} account cannot be unlinked without another form of login enabled.`
-          + ' Please link another account or add an email address and password.'
+        + ' Please link another account or add an email address and password.'
       });
       return res.redirect('/account');
     }
     user.tokens = tokensWithoutProviderToUnlink;
-    user.save((err) => {
-      if (err) { return next(err); }
-      req.flash('info', { msg: `${_.startCase(_.toLower(provider))} account has been unlinked.` });
-      res.redirect('/account');
+    await user.save();
+    req.flash('info', {
+      msg: `${_.startCase(_.toLower(provider))} account has been unlinked.`,
     });
-  });
+    res.redirect('/account');
+  } catch (err) {
+    next(err);
+  }
 };
 
 /**
@@ -322,31 +287,25 @@ exports.getReset = async (req, res, next) => {
       return res.redirect('/');
     }
     const validationErrors = [];
-    if (!validator.isHexadecimal(req.params.token)) validationErrors.push({ msg: 'Invalid Token. Please retry.' });
+    if (!validator.isHexadecimal(req.params.token)) validationErrors.push({ msg: 'Invalid Token.  Please retry.' });
     if (validationErrors.length) {
       req.flash('errors', validationErrors);
       return res.redirect('/forgot');
     }
 
     const user = await User.findOne({
-      where: {
-        passwordResetToken: req.params.token,
-        passwordResetExpires: { [Op.gt]: new Date() }
-      }
-    });
-
+      passwordResetToken: req.params.token,
+      passwordResetExpires: { $gt: Date.now() }
+    }).exec();
     if (!user) {
       req.flash('errors', { msg: 'Password reset token is invalid or has expired.' });
       return res.redirect('/forgot');
     }
-
     res.render('account/reset', {
       title: 'Password Reset'
     });
-  } catch (error) {
-    console.error(error);
-    req.flash('errors', { msg: 'An error occurred while resetting your password.' });
-    return res.redirect('/forgot');
+  } catch (err) {
+    return next(err);
   }
 };
 
@@ -361,7 +320,7 @@ exports.getVerifyEmailToken = async (req, res, next) => {
   }
 
   const validationErrors = [];
-  if (req.params.token && (!validator.isHexadecimal(req.params.token))) validationErrors.push({ msg: 'Invalid Token.  Please retry.' });
+  if (validator.escape(req.params.token) && (!validator.isHexadecimal(req.params.token))) validationErrors.push({ msg: 'Invalid Token.  Please retry.' });
   if (validationErrors.length) {
     req.flash('errors', validationErrors);
     return res.redirect('/account');
@@ -424,7 +383,7 @@ exports.getVerifyEmail = async (req, res, next) => {
 
     const mailOptions = {
       to: req.user.email,
-      from: 'no-reply@keeply.fr',
+      from: process.env.SITE_CONTACT_EMAIL,
       subject: 'Please verify your email address on Hackathon Starter',
       text: `Thank you for registering with hackathon-starter.\n\n
         To verify your email address please click on the following link, or paste this into your browser:\n\n
@@ -461,15 +420,9 @@ exports.getVerifyEmail = async (req, res, next) => {
  */
 exports.postReset = (req, res, next) => {
   const validationErrors = [];
-  if (!validator.isLength(req.body.password, { min: 8 })) {
-    validationErrors.push({ msg: 'Password must be at least 8 characters long' });
-  }
-  if (req.body.password !== req.body.confirm) {
-    validationErrors.push({ msg: 'Passwords do not match' });
-  }
-  if (!validator.isHexadecimal(req.params.token)) {
-    validationErrors.push({ msg: 'Invalid Token. Please retry.' });
-  }
+  if (!validator.isLength(req.body.password, { min: 8 })) validationErrors.push({ msg: 'Password must be at least 8 characters long' });
+  if (validator.escape(req.body.password) !== validator.escape(req.body.confirm)) validationErrors.push({ msg: 'Passwords do not match' });
+  if (!validator.isHexadecimal(req.params.token)) validationErrors.push({ msg: 'Invalid Token.  Please retry.' });
 
   if (validationErrors.length) {
     req.flash('errors', validationErrors);
@@ -506,7 +459,7 @@ exports.postReset = (req, res, next) => {
     }
     const mailOptions = {
       to: user.email,
-      from: 'hackathon@starter.com',
+      from: process.env.SITE_CONTACT_EMAIL,
       subject: 'Your Hackathon Starter password has been changed',
       text: `Hello,\n\nThis is a confirmation that the password for your account ${user.email} has just been changed.\n`
     };
@@ -581,7 +534,7 @@ exports.postForgot = (req, res, next) => {
     const token = user.passwordResetToken;
     const mailOptions = {
       to: user.email,
-      from: 'hackathon@starter.com',
+      from: process.env.SITE_CONTACT_EMAIL,
       subject: 'Reset your password on Hackathon Starter',
       text: `You are receiving this email because you (or someone else) have requested the reset of the password for your account.\n\n
         Please click on the following link, or paste this into your browser to complete the process:\n\n
