@@ -11,7 +11,6 @@ const errorHandler = require('errorhandler');
 const lusca = require('lusca');
 const dotenv = require('dotenv');
 const flash = require('express-flash');
-const path = require('path');
 const passport = require('passport');
 const multer = require('multer');
 const rateLimit = require('express-rate-limit');
@@ -107,8 +106,8 @@ pool.query(
 /**
  * Express configuration.
  */
-app.set('host', process.env.OPENSHIFT_NODEJS_IP || '0.0.0.0');
-app.set('port', process.env.PORT || process.env.OPENSHIFT_NODEJS_PORT || 8080);
+app.set('host', process.env.BASE_URL || process.env.OPENSHIFT_NODEJS_IP || '0.0.0.0');
+app.set('port', process.env.PORT || process.env.OPENSHIFT_NODEJS_PORT || 8081);
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
 app.set('trust proxy', numberOfProxies);
@@ -327,7 +326,7 @@ app.listen(app.get('port'), () => {
 
   if (!BASE_URL.startsWith('http://localhost')) {
     console.log(`The BASE_URL env variable is set to ${BASE_URL}. If you directly test the application through http://localhost:${app.get('port')} instead of the BASE_URL, it may cause a CSRF mismatch or an Oauth authentication failur. To avoid the issues, change the BASE_URL or configure your proxy to match it.\n`);
-  } else if (app.get('port') !== port) {
+  } else if (parseInt(app.get('port'), 10) !== port) {
     console.warn(`WARNING: The BASE_URL environment variable and the App have a port mismatch. If you plan to view the app in your browser using the localhost address, you may need to adjust one of the ports to make them match. BASE_URL: ${BASE_URL}\n`);
   }
 
