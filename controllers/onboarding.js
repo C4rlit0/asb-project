@@ -95,7 +95,7 @@ exports.postOnboarding = async (req, res, next) => {
       };
 
       // If the response is 200, we can save the Github settings
-      user.setSettings({
+      User.setSettings(user, {
         github: {
           enabled: false,
           username,
@@ -103,7 +103,6 @@ exports.postOnboarding = async (req, res, next) => {
           repository: repoInfos,
         }
       });
-      await user.save();
 
       req.flash('success', { msg: 'Your repo/PAT is valid!' });
       // Redirect to the next step of the onboarding and pass the repo infos

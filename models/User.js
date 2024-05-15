@@ -35,7 +35,7 @@ const User = {
     const user = {
       EMAIL: email,
       PASSWORD: hashedPassword,
-      GRAVATAR_URL: this.gravatar({ email }),
+      // GRAVATAR_URL: this.gravatar({ email }),
     };
     return await base('Users').create(user);
   },
@@ -91,14 +91,18 @@ const User = {
     };
     await this.setSettings(user, settings);
   },
-  gravatar: function (user, size) {
+  gravatar: function (email, size) {
+    let {
+      userEmail
+    } = email;
+
     if (!size) {
       size = 200;
     }
-    if (!user.fields.email) {
+    if (!email) {
       return `https://gravatar.com/avatar/00000000000000000000000000000000?s=${size}&d=retro`;
     }
-    const md5 = crypto.createHash('md5').update(user.fields.email).digest('hex');
+    const md5 = crypto.createHash('md5').update(userEmail).digest('hex');
     return `https://gravatar.com/avatar/${md5}?s=${size}&d=retro`;
   },
 };
