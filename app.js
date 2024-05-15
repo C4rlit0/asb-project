@@ -15,12 +15,32 @@ const passport = require('passport');
 const multer = require('multer');
 const rateLimit = require('express-rate-limit');
 const i18n = require('i18n');
+const axios = require('axios');
+// const RedisStore = require('connect-redis');
+// const createClient = require('redis').createClient;
+
+// /**
+//  * Connect to Redis Store
+//  */
+
+// const redisClient = createClient({
+//   host: process.env.REDIS_HOST,
+//   port: process.env.REDIS_PORT,
+//   password: process.env.REDIS_PASSWORD,
+// });
+// redisClient.connect().catch((error) => {
+//   console.error('Error connecting to Redis:', error);
+// });
+
 
 /**
- * Configure Postgres
+ * Configure Airtable
  */
-const { Pool } = require('pg');
-const pgSession = require('connect-pg-simple')(session);
+const Airtable = require('airtable');
+Airtable.configure({
+  apiKey: process.env.AIRTABLE_API_KEY,
+  endpointUrl: 'https://api.airtable.com'
+})
 
 /**
  * Configure i18n.
@@ -82,22 +102,79 @@ const app = express();
 console.log('Run this app using "npm start" to include sass/scss/css builds.\n');
 
 /**
- * Connect to PostgreSQL.
+ * Connect to Airtable
  */
-const pool = new Pool({
-  connectionString: process.env.POSTGRESQL_URI,
-  ssl: false
-});
-pool.on('error', (err, client) => {
-  console.error('Unexpected error on idle client', err);
-  process.exit(-1);
-});
+// Try connecting to the base doing a base schema request with axios | GET https://api.airtable.com/v0/meta/bases/BaseId/tables
+// The metadata API uses token-based authentication like Airtable's standard REST API. Users will need to paste their Airtable account's API key (available from your account page) into your integration. Send the API key in the Authorization header of all your requests:
 
-// Exécuter une requête SQL pour créer la table "session"
-pool.query('CREATE TABLE IF NOT EXISTS session (sid varchar NOT NULL, sess json NOT NULL, expire timestamp(6) NOT NULL, PRIMARY KEY (sid))').then(() => {
-  console.log('Table "session" créée avec succès');
-}).catch((err) => {
-  console.error('Erreur lors de la création de la table "session" :', err);
+// Authorization: Bearer $USER_API_KEY
+// After you receive a client secret from us, you must send a X-Airtable-Client-Secret HTTP header with all your requests to help us identify and authenticate your integration. If you fail to do this, your request will be blocked.
+
+// Enterprise Airtable accounts do not require a separate Metadata API client secret. A separate Metadata API client secret is also not required if using personal access tokens or OAuth integrations.
+
+// X-Airtable-Client-Secret: foo-123123
+// Finally, please perform all requests to these endpoints server-side.
+const AIRTABLE_BASE_SCHEMA = axios.get(`https://api.airtable.com/v0/meta/bases/${process.env.AIRTABLE_BASE_ID}/tables`, {
+  headers: {
+    Authorization: `Bearer ${process.env.AIRTABLE_API_KEY}`,
+  }
+})
+.then((response) => {
+  const schema = response.data;
+
+  // Verify SESSIONS table exists in schema
+  const sessionsTable = schema.tables.find(table => table.name === 'SESSIONS');
+  if (sessionsTable) {
+    console.log('Table "SESSIONS" exists in Airtable schema');
+    const requiredFields = ['SID', 'USER', 'ID', 'SESSION', 'EXPIRE'];
+    const allFieldsExist = requiredFields.every(field => sessionsTable.fields.map(f => f.name).includes(field));
+    if (allFieldsExist) {
+      console.log('All fields exist in Airtable schema');
+    } else {
+      console.error('Some fields do not exist in Airtable schema');
+    }
+  } else {
+    console.error('Table "SESSIONS" does not exist in Airtable schema');
+  }
+
+  // Verify USERS table exists in schema
+  const usersTable = schema.tables.find(table => table.name === 'USERS');
+  if (usersTable) {
+    console.log('Table "USERS" exists in Airtable schema');
+    const requiredFields = [
+      'ID',
+      'EMAIL',
+      'PASSWORD',
+      'PWD_RESET_TKN',
+      'PWD_RESET_EXPIRES',
+      'EMAIL_VERIFICATION_TKN',
+      'EMAIL_VERIFIED',
+      'NAME',
+      'ONBOARDING_DONE',
+      'GITHUB_ENABLED',
+      'GITHUB_ORG',
+      'GITHUB_OWNER',
+      'GITHUB_PAT',
+      'GITHUB_REPO',
+      'GITHUB_REPO_STATUS',
+      'GITHUB_REPO_DESCRIPTION',
+      'GITHUB_REPO_CREATION_DATE',
+      'CREATED_AT',
+      'UPDATED_AT',
+      'SESSIONS'
+    ];
+    const allFieldsExist = requiredFields.every(field => usersTable.fields.map(f => f.name).includes(field));
+    if (allFieldsExist) {
+      console.log('All fields exist in Airtable schema');
+    } else {
+      console.error('Some fields do not exist in Airtable schema');
+    }
+  } else {
+    console.error('Table "USERS" does not exist in Airtable schema');
+  }
+})
+.catch((error) => {
+  console.error('Error fetching Airtable base schema:', error);
 });
 
 /**
@@ -123,10 +200,8 @@ app.use(session({
     secure: secureTransfer
   },
 
-  store: new pgSession({
-    pool,
-    tableName: 'session'
-  }),
+  // Store the session in Airtable instead of memory
+  // WIP connect-artiable
 }));
 app.use(passport.initialize());
 app.use(passport.session());

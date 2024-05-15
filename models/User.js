@@ -1,128 +1,106 @@
-const Sequelize = require('sequelize');
 const bcrypt = require('@node-rs/bcrypt');
 const crypto = require('crypto');
 const path = require('path');
 const fs = require('fs');
+const Airtable = require('airtable');
 
-const sequelize = new Sequelize(process.env.POSTGRESQL_URI);
+const base = new Airtable({ apiKey: process.env.AIRTABLE_API_KEY }).base(process.env.AIRTABLE_BASE_ID);
 
 const settingsModel = JSON.parse(fs.readFileSync(path.join(__dirname, './json/userSettingsModel.json')));
 
-const User = sequelize.define('User', {
-  email: {
-    type: Sequelize.STRING,
-    unique: true,
-    allowNull: false
+// USERS_BASE_MODEL = [
+//   'ID', // Auto increment
+//   'EMAIL',
+//   'PASSWORD',
+//   'GRAVATAR_URL',
+//   'PWD_RESET_TKN',
+//   'PWD_RESET_EXPIRES',
+//   'EMAIL_VERIFICATION_TKN',
+//   'EMAIL_VERIFIED',
+//   'NAME',
+//   'ONBOARDING_DONE',
+//   'GITHUB_ENABLED',
+//   'GITHUB_ORG',
+//   'GITHUB_OWNER',
+//   'GITHUB_PAT',
+//   'GITHUB_REPO',
+//   'GITHUB_REPO_STATUS',
+//   'GITHUB_REPO_DESCRIPTION',
+//   'GITHUB_REPO_CREATION_DATE',
+// ];
+
+const User = {
+  create: async function (email, password) {
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const user = {
+      EMAIL: email,
+      PASSWORD: hashedPassword,
+      GRAVATAR_URL: this.gravatar({ email }),
+    };
+    return await base('Users').create(user);
   },
-  password: {
-    type: Sequelize.STRING,
-    allowNull: true
-  },
-  passwordResetToken: Sequelize.STRING,
-  passwordResetExpires: Sequelize.DATE,
-  emailVerificationToken: Sequelize.STRING,
-  emailVerified: Sequelize.BOOLEAN,
-  github: Sequelize.STRING,
-  tokens: Sequelize.ARRAY(Sequelize.TEXT),
-  profile: {
-    type: Sequelize.JSONB,
-    defaultValue: {},
-    allowNull: false,
-    get() {
-      return this.getDataValue('profile') || {};
-    },
-    set(value) {
-      this.setDataValue('profile', value);
-    },
-  },
-  onboardingStatus: {
-    type: Sequelize.BOOLEAN,
-    defaultValue: false,
-    allowNull: false,
-  },
-  settings: {
-    type: Sequelize.JSONB,
-    defaultValue: settingsModel,
-    allowNull: false,
-    get() {
-      return this.getDataValue('settings') || {};
-    },
-    set(value) {
-      this.setDataValue('settings', value);
-    },
-  },
-}, {
-  timestamps: true,
-  hooks: {
-    beforeCreate: async (user) => {
-      if (user.password) {
-        const hashedPassword = await bcrypt.hash(user.password, 10);
-        user.password = hashedPassword;
-      }
+  findByEmail: async function (email) {
+    const records = await base('Users')
+      .select({ filterByFormula: `email = "${email}"` })
+      .firstPage();
+    if (records.length > 0) {
+      const {
+        id,
+        fields
+      } = records[0];
+      return { id, fields };
+    } else {
+      console.log('No records found');
+      return null;
     }
-  }
-});
-
-User.prototype.getOnboardingStatus = function () {
-  return this.onboardingStatus || false;
-};
-
-User.prototype.setOnboardingStatus = function (status) {
-  this.onboardingStatus = status;
-};
-
-User.prototype.getSettings = function () {
-  return this.settings || {};
-};
-
-User.prototype.setSettings = function (settings) {
-  console.log('this.settings', this.settings);
-  console.log('settings', settings);
-  this.settings = settings;
-};
-
-User.prototype.enableGithub = function (username, token) {
-  const settings = this.getSettings();
-  settings.github = {
-    enabled: true,
-    username,
-    token,
-  };
-  this.setSettings(settings);
-};
-
-User.prototype.disableGithub = function () {
-  const settings = this.getSettings();
-  settings.github = {
-    enabled: false,
-    username: '',
-    token: '',
-  };
-  this.setSettings(settings);
-};
-
-// Synchronisation de la base de données avec le modèle
-User.sync()
-  .then(() => {
-    console.log('Table User synchronisée');
-  })
-  .catch((error) => {
-    console.error('Erreur lors de la synchronisation de la base de données:', error);
-  });
-
-User.prototype.comparePassword = async function (candidatePassword) {
-  return await bcrypt.compare(candidatePassword, this.password);
-};
-
-User.prototype.gravatar = function gravatar(size) {
-  if (!size) {
-    size = 200;
-  }
-  if (!this.email) {
-    return `https://gravatar.com/avatar/00000000000000000000000000000000?s=${size}&d=retro`;
-  }
-  const md5 = crypto.createHash('md5').update(this.email).digest('hex');
-  return `https://gravatar.com/avatar/${md5}?s=${size}&d=retro`;
+  },
+  findById: async function (id) {
+    const record = await base('Users').find(id);
+    return record;
+  },
+  comparePassword: async function (user, candidatePassword) {
+    return await bcrypt.compare(candidatePassword, user.fields.PASSWORD);
+  },
+  getOnboardingStatus: function (user) {
+    return user.fields.onboardingStatus || false;
+  },
+  setOnboardingStatus: async function (user, status) {
+    await base('Users').update(user.id, { onboardingStatus: status });
+  },
+  getSettings: function (user) {
+    return user.fields.settings || {};
+  },
+  setSettings: async function (user, settings) {
+    await base('Users').update(user.id, { settings: settings });
+  },
+  enableGithub: async function (user, username, token) {
+    const settings = this.getSettings(user);
+    settings.github = {
+      enabled: true,
+      username,
+      token,
+    };
+    await this.setSettings(user, settings);
+  },
+  disableGithub: async function (user) {
+    const settings = this.getSettings(user);
+    settings.github = {
+      enabled: false,
+      username: '',
+      token: '',
+    };
+    await this.setSettings(user, settings);
+  },
+  gravatar: function (user, size) {
+    if (!size) {
+      size = 200;
+    }
+    if (!user.fields.email) {
+      return `https://gravatar.com/avatar/00000000000000000000000000000000?s=${size}&d=retro`;
+    }
+    const md5 = crypto.createHash('md5').update(user.fields.email).digest('hex');
+    return `https://gravatar.com/avatar/${md5}?s=${size}&d=retro`;
+  },
 };
 
 module.exports = User;

@@ -8,7 +8,7 @@ const User = require('../models/User');
  */
 exports.getOnboarding = async (req, res) => {
   // Get the user from the database
-  const user = await User.findByPk(req.user.id);
+  const user = await User.findById(req.user.id);
 
   return res.render('onboarding', {
     title: 'Let\'s started!'
@@ -60,7 +60,7 @@ exports.postOnboarding = async (req, res, next) => {
 
   try {
     // Get the user from the database
-    const user = await User.findByPk(req.user.id);
+    const user = await User.findById(req.user.id);
 
     if (!user) {
       throw new Error('User not found.');
@@ -128,7 +128,7 @@ exports.postOnboardingNextStep = async (req, res, next) => {
   // This function receives the POST request from the onboarding form with the repo infos
   try {
     // Get the user from the database
-    const user = await User.findByPk(req.user.id);
+    const user = await User.findById(req.user.id);
 
     if (!user) {
       throw new Error('User not found.');
