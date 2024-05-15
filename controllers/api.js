@@ -3,7 +3,6 @@ const cheerio = require('cheerio');
 const { LastFmNode } = require('lastfm');
 const { Octokit } = require('@octokit/rest');
 const stripe = require('stripe')(process.env.STRIPE_SKEY);
-const twilio = require('twilio')(process.env.TWILIO_SID, process.env.TWILIO_TOKEN);
 const paypal = require('paypal-rest-sdk');
 const axios = require('axios');
 const googledrive = require('@googleapis/drive');
@@ -378,41 +377,6 @@ exports.postStripe = (req, res) => {
     req.flash('success', { msg: 'Your card has been successfully charged.' });
     res.redirect('/api/stripe');
   });
-};
-
-/**
- * GET /api/twilio
- * Twilio API example.
- */
-exports.getTwilio = (req, res) => {
-  res.render('api/twilio', {
-    title: 'Twilio API'
-  });
-};
-
-/**
- * POST /api/twilio
- * Send a text message using Twilio.
- */
-exports.postTwilio = (req, res, next) => {
-  const validationErrors = [];
-  if (validator.isEmpty(req.body.number)) validationErrors.push({ msg: 'Phone number is required.' });
-  if (validator.isEmpty(req.body.message)) validationErrors.push({ msg: 'Message cannot be blank.' });
-
-  if (validationErrors.length) {
-    req.flash('errors', validationErrors);
-    return res.redirect('/api/twilio');
-  }
-
-  const message = {
-    to: req.body.number,
-    from: '+13472235148',
-    body: req.body.message
-  };
-  twilio.messages.create(message).then((sentMessage) => {
-    req.flash('success', { msg: `Text send to ${sentMessage.to}` });
-    res.redirect('/api/twilio');
-  }).catch(next);
 };
 
 /**
