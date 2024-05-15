@@ -9,7 +9,7 @@ exports.getDashboard = async (req, res) => {
   // Function to get all saved automations from GitHub
 
   // Get the user from the database
-  const user = await User.findByPk(req.user.id);
+  const user = await User.findById(req.user.id);
   const settings = user.getSettings();
 
   // Test if Github PAT is valid to fetch repo infos
