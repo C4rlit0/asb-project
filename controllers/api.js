@@ -3,7 +3,6 @@ const cheerio = require('cheerio');
 const { LastFmNode } = require('lastfm');
 const { Octokit } = require('@octokit/rest');
 const stripe = require('stripe')(process.env.STRIPE_SKEY);
-const twilio = require('twilio')(process.env.TWILIO_SID, process.env.TWILIO_TOKEN);
 const paypal = require('paypal-rest-sdk');
 const axios = require('axios');
 const googledrive = require('@googleapis/drive');
