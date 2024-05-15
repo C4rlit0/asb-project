@@ -7,7 +7,7 @@ const User = require('../models/User');
  */
 exports.getSettings = async (req, res) => {
   // Get the user from the database
-  const user = await User.findByPk(req.user.id);
+  const user = await User.findById(req.user.id);
   const settings = user.getSettings();
 
   res.render('account/settings', {
@@ -33,7 +33,7 @@ exports.postSettings = async (req, res, next) => {
 
   try {
     // Get the user from the database
-    const user = await User.findByPk(req.user.id);
+    const user = await User.findById(req.user.id);
 
     if (!user) {
       throw new Error('User not found.');

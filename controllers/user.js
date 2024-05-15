@@ -132,16 +132,12 @@ exports.postSignup = async (req, res, next) => {
   }
   req.body.email = validator.normalizeEmail(req.body.email, { gmail_remove_dots: false });
   try {
-    const existingUser = await User.findOne({ email: req.body.email });
+    const existingUser = await User.findByEmail(req.body.email.toLowerCase());
     if (existingUser) {
       req.flash('errors', { msg: 'Account with that email address already exists.' });
       return res.redirect('/signup');
     }
-    const user = new User({
-      email: req.body.email,
-      password: req.body.password
-    });
-    await user.save();
+    const user = await User.create(req.body.email, req.body.password);
     req.logIn(user, (err) => {
       if (err) {
         return next(err);
@@ -177,7 +173,7 @@ exports.postUpdateProfile = async (req, res, next) => {
   }
   req.body.email = validator.normalizeEmail(req.body.email, { gmail_remove_dots: false });
   try {
-    const user = await User.findByPk(req.user.id); // Replace findById with findByPk due to Postgres use instead of MongoDB
+    const user = await User.findById(req.user.id);
     if (user.email !== req.body.email) user.emailVerified = false;
     user.email = req.body.email || '';
     user.profile.name = req.body.name || '';
@@ -210,7 +206,7 @@ exports.postUpdatePassword = async (req, res, next) => {
     return res.redirect('/account');
   }
   try {
-    const user = await User.findByPk(req.user.id); // Replace findById with findByPk due to Postgres use instead of MongoDB
+    const user = await User.findById(req.user.id); 
     user.password = req.body.password;
     await user.save();
     req.flash('success', { msg: 'Password has been changed.' });
@@ -248,7 +244,7 @@ exports.getOauthUnlink = async (req, res, next) => {
   try {
     let { provider } = req.params;
     provider = validator.escape(provider);
-    const user = await User.findByPk(req.user.id); // Replace findById with findByPk due to Postgres use instead of MongoDB
+    const user = await User.findById(req.user.id);
     user[provider.toLowerCase()] = undefined;
     const tokensWithoutProviderToUnlink = user.tokens.filter((token) =>
       token.kind !== provider.toLowerCase());

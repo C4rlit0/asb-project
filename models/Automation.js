@@ -126,7 +126,7 @@ Automation.prototype.getAllAutomationsForUser = function (userId) {
 
 // Get an automation by its ID
 Automation.prototype.getAutomationById = function (id) {
-  return Automation.findByPk(id);
+  return Automation.findById(id);
 };
 
 // Get an automation by its base app ID
