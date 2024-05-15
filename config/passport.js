@@ -67,125 +67,125 @@ passport.use(new LocalStrategy({ usernameField: 'email' }, async (email, passwor
 /**
  * Sign in with GitHub.
  */
-passport.use(new GitHubStrategy({
-  clientID: process.env.GITHUB_ID,
-  clientSecret: process.env.GITHUB_SECRET,
-  callbackURL: `${process.env.BASE_URL}/auth/github/callback`,
-  passReqToCallback: true,
-  scope: ['user:email']
-}, async (req, accessToken, refreshToken, profile, done) => {
-  try {
-    if (req.user) {
-      const existingUser = await User.findOne({ github: profile.id });
-      if (existingUser) {
-        req.flash('errors', { msg: 'There is already a GitHub account that belongs to you. Sign in with that account or delete it, then link it with your current account.' });
-        return done(null, existingUser);
-      }
-      const user = await User.findById(req.user.id);
-      user.github = profile.id;
-      user.tokens.push({ kind: 'github', accessToken });
-      user.profile.name = user.profile.name || profile.displayName;
-      user.profile.picture = user.profile.picture || profile._json.avatar_url;
-      user.profile.location = user.profile.location || profile._json.location;
-      user.profile.website = user.profile.website || profile._json.blog;
-      await user.save();
-      req.flash('info', { msg: 'GitHub account has been linked.' });
-      return done(null, user);
-    }
-    const existingUser = await User.findOne({ github: profile.id });
-    if (existingUser) {
-      return done(null, existingUser);
-    }
-    const emailValue = _.get(_.orderBy(profile.emails, ['primary', 'verified'], ['desc', 'desc']), [0, 'value'], null);
-    if (profile._json.email === null) {
-      const existingEmailUser = await User.findOne({ email: emailValue });
+// passport.use(new GitHubStrategy({
+//   clientID: process.env.GITHUB_ID,
+//   clientSecret: process.env.GITHUB_SECRET,
+//   callbackURL: `${process.env.BASE_URL}/auth/github/callback`,
+//   passReqToCallback: true,
+//   scope: ['user:email']
+// }, async (req, accessToken, refreshToken, profile, done) => {
+//   try {
+//     if (req.user) {
+//       const existingUser = await User.findOne({ github: profile.id });
+//       if (existingUser) {
+//         req.flash('errors', { msg: 'There is already a GitHub account that belongs to you. Sign in with that account or delete it, then link it with your current account.' });
+//         return done(null, existingUser);
+//       }
+//       const user = await User.findById(req.user.id);
+//       user.github = profile.id;
+//       user.tokens.push({ kind: 'github', accessToken });
+//       user.profile.name = user.profile.name || profile.displayName;
+//       user.profile.picture = user.profile.picture || profile._json.avatar_url;
+//       user.profile.location = user.profile.location || profile._json.location;
+//       user.profile.website = user.profile.website || profile._json.blog;
+//       await user.save();
+//       req.flash('info', { msg: 'GitHub account has been linked.' });
+//       return done(null, user);
+//     }
+//     const existingUser = await User.findOne({ github: profile.id });
+//     if (existingUser) {
+//       return done(null, existingUser);
+//     }
+//     const emailValue = _.get(_.orderBy(profile.emails, ['primary', 'verified'], ['desc', 'desc']), [0, 'value'], null);
+//     if (profile._json.email === null) {
+//       const existingEmailUser = await User.findOne({ email: emailValue });
 
-      if (existingEmailUser) {
-        req.flash('errors', { msg: 'There is already an account using this email address. Sign in to that account and link it with GitHub manually from Account Settings.' });
-        return done(null, existingEmailUser);
-      }
-    } else {
-      const existingEmailUser = await User.findOne({ email: profile._json.email });
-      if (existingEmailUser) {
-        req.flash('errors', { msg: 'There is already an account using this email address. Sign in to that account and link it with GitHub manually from Account Settings.' });
-        return done(null, existingEmailUser);
-      }
-    }
-    const user = new User();
-    user.email = emailValue;
-    user.github = profile.id;
-    user.tokens.push({ kind: 'github', accessToken });
-    user.profile.name = profile.displayName;
-    user.profile.picture = profile._json.avatar_url;
-    user.profile.location = profile._json.location;
-    user.profile.website = profile._json.blog;
-    await user.save();
-    return done(null, user);
-  } catch (err) {
-    return done(err);
-  }
-}));
+//       if (existingEmailUser) {
+//         req.flash('errors', { msg: 'There is already an account using this email address. Sign in to that account and link it with GitHub manually from Account Settings.' });
+//         return done(null, existingEmailUser);
+//       }
+//     } else {
+//       const existingEmailUser = await User.findOne({ email: profile._json.email });
+//       if (existingEmailUser) {
+//         req.flash('errors', { msg: 'There is already an account using this email address. Sign in to that account and link it with GitHub manually from Account Settings.' });
+//         return done(null, existingEmailUser);
+//       }
+//     }
+//     const user = new User();
+//     user.email = emailValue;
+//     user.github = profile.id;
+//     user.tokens.push({ kind: 'github', accessToken });
+//     user.profile.name = profile.displayName;
+//     user.profile.picture = profile._json.avatar_url;
+//     user.profile.location = profile._json.location;
+//     user.profile.website = profile._json.blog;
+//     await user.save();
+//     return done(null, user);
+//   } catch (err) {
+//     return done(err);
+//   }
+// }));
 
-/**
- * Sign in with Google.
- */
-const googleStrategyConfig = new GoogleStrategy({
-  clientID: process.env.GOOGLE_ID,
-  clientSecret: process.env.GOOGLE_SECRET,
-  callbackURL: '/auth/google/callback',
-  passReqToCallback: true
-}, async (req, accessToken, refreshToken, params, profile, done) => {
-  try {
-    if (req.user) {
-      const existingUser = await User.findOne({ google: profile.id });
-      if (existingUser && (existingUser.id !== req.user.id)) {
-        req.flash('errors', { msg: 'There is already a Google account that belongs to you. Sign in with that account or delete it, then link it with your current account.' });
-        return done(null, existingUser);
-      }
-      const user = await User.findById(req.user.id);
-      user.google = profile.id;
-      user.tokens.push({
-        kind: 'google',
-        accessToken,
-        accessTokenExpires: moment().add(params.expires_in, 'seconds').format(),
-        refreshToken,
-      });
-      user.profile.name = user.profile.name || profile.displayName;
-      user.profile.gender = user.profile.gender || profile._json.gender;
-      user.profile.picture = user.profile.picture || profile._json.picture;
-      await user.save();
-      req.flash('info', { msg: 'Google account has been linked.' });
-      return done(null, user);
-    }
-    const existingUser = await User.findOne({ google: profile.id });
-    if (existingUser) {
-      return done(null, existingUser);
-    }
-    const existingEmailUser = await User.findOne({ email: profile.emails[0].value });
-    if (existingEmailUser) {
-      req.flash('errors', { msg: 'There is already an account using this email address. Sign in to that account and link it with Google manually from Account Settings.' });
-      return done(null, existingEmailUser);
-    }
-    const user = new User();
-    user.email = profile.emails[0].value;
-    user.google = profile.id;
-    user.tokens.push({
-      kind: 'google',
-      accessToken,
-      accessTokenExpires: moment().add(params.expires_in, 'seconds').format(),
-      refreshToken,
-    });
-    user.profile.name = profile.displayName;
-    user.profile.gender = profile._json.gender;
-    user.profile.picture = profile._json.picture;
-    await user.save();
-    return done(null, user);
-  } catch (err) {
-    return done(err);
-  }
-});
-passport.use('google', googleStrategyConfig);
-refresh.use('google', googleStrategyConfig);
+// /**
+//  * Sign in with Google.
+//  */
+// const googleStrategyConfig = new GoogleStrategy({
+//   clientID: process.env.GOOGLE_ID,
+//   clientSecret: process.env.GOOGLE_SECRET,
+//   callbackURL: '/auth/google/callback',
+//   passReqToCallback: true
+// }, async (req, accessToken, refreshToken, params, profile, done) => {
+//   try {
+//     if (req.user) {
+//       const existingUser = await User.findOne({ google: profile.id });
+//       if (existingUser && (existingUser.id !== req.user.id)) {
+//         req.flash('errors', { msg: 'There is already a Google account that belongs to you. Sign in with that account or delete it, then link it with your current account.' });
+//         return done(null, existingUser);
+//       }
+//       const user = await User.findById(req.user.id);
+//       user.google = profile.id;
+//       user.tokens.push({
+//         kind: 'google',
+//         accessToken,
+//         accessTokenExpires: moment().add(params.expires_in, 'seconds').format(),
+//         refreshToken,
+//       });
+//       user.profile.name = user.profile.name || profile.displayName;
+//       user.profile.gender = user.profile.gender || profile._json.gender;
+//       user.profile.picture = user.profile.picture || profile._json.picture;
+//       await user.save();
+//       req.flash('info', { msg: 'Google account has been linked.' });
+//       return done(null, user);
+//     }
+//     const existingUser = await User.findOne({ google: profile.id });
+//     if (existingUser) {
+//       return done(null, existingUser);
+//     }
+//     const existingEmailUser = await User.findOne({ email: profile.emails[0].value });
+//     if (existingEmailUser) {
+//       req.flash('errors', { msg: 'There is already an account using this email address. Sign in to that account and link it with Google manually from Account Settings.' });
+//       return done(null, existingEmailUser);
+//     }
+//     const user = new User();
+//     user.email = profile.emails[0].value;
+//     user.google = profile.id;
+//     user.tokens.push({
+//       kind: 'google',
+//       accessToken,
+//       accessTokenExpires: moment().add(params.expires_in, 'seconds').format(),
+//       refreshToken,
+//     });
+//     user.profile.name = profile.displayName;
+//     user.profile.gender = profile._json.gender;
+//     user.profile.picture = profile._json.picture;
+//     await user.save();
+//     return done(null, user);
+//   } catch (err) {
+//     return done(err);
+//   }
+// });
+// passport.use('google', googleStrategyConfig);
+// refresh.use('google', googleStrategyConfig);
 
 /**
  * Intuit/QuickBooks API OAuth.
