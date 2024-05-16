@@ -32,7 +32,6 @@ passport.deserializeUser(async (id, done) => {
 passport.use(new LocalStrategy({ usernameField: 'email' }, async (email, password, done) => {
   try {
     const user = await User.findByEmail(email.toLowerCase());
-    console.log('user', user);
     if (!user) {
       return done(null, false, { msg: `Email ${email} not found.` });
     }
