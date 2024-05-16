@@ -29,7 +29,7 @@ block content
           input.form-control(type='text', name='website', id='website', value=user.profile && user.profile.website ? user.profile.website : '', autocomplete='url')
           label.col-md-3.col-form-label.font-weight-bold.text-right(for='website') Website
         .form-floating.mb-3
-          img.rounded(src=user.gravatar(), class='profile', width='100', height='100')
+          img.rounded(src=user.fields.GRAVATAR_URL, class='profile', width='100', height='100')
         .form-group
           .pl-2
             button.w-100.btn.btn-lg.btn-success(type="submit")
