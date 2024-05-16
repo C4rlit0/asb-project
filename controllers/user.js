@@ -154,8 +154,10 @@ exports.postSignup = async (req, res, next) => {
  * Profile page.
  */
 exports.getAccount = (req, res) => {
+  console.log('getAccount - User:', req.user);
   res.render('account/profile', {
-    title: 'Account Management'
+    title: 'Account',
+    user: this.formatUser(req.user.id, req.user.fields)
   });
 };
 
@@ -171,16 +173,13 @@ exports.postUpdateProfile = async (req, res, next) => {
     req.flash('errors', validationErrors);
     return res.redirect('/account');
   }
-  req.body.email = validator.normalizeEmail(req.body.email, { gmail_remove_dots: false });
+  const {
+    email = validator.normalizeEmail(req.body.email, { gmail_remove_dots: false }),
+    name,
+  } = req.body;
+  // req.body.email = validator.normalizeEmail(req.body.email, { gmail_remove_dots: false });
   try {
-    const user = await User.findById(req.user.id);
-    if (user.email !== req.body.email) user.emailVerified = false;
-    user.email = req.body.email || '';
-    user.profile.name = req.body.name || '';
-    user.profile.gender = req.body.gender || '';
-    user.profile.location = req.body.location || '';
-    user.profile.website = req.body.website || '';
-    await user.save();
+    const user = await User.updateProfile(req.user.id, email, name);
     req.flash('success', { msg: 'Profile information has been updated.' });
     res.redirect('/account');
   } catch (err) {
@@ -550,3 +549,19 @@ exports.postForgot = (req, res, next) => {
     .then(() => res.redirect('/forgot'))
     .catch(next);
 };
+
+exports.formatUser = (id, fields) => {
+  const formattedUser = {
+    recId: id,
+    id: fields.ID,
+    email: fields.EMAIL,
+    password: fields.PASSWORD,
+    name: fields.NAME,
+    onboardingStatus: fields.ONBOARDING_DONE,
+    emailVerified: fields.EMAIL_VERIFIED,
+    useGravatar: fields.USE_GRAVATAR,
+    profilePicture: fields.USE_GRAVATAR ? fields.GRAVATAR_URL : fields.CUSTOM_PICTURE_URL,
+  };
+  console.log('formatUser :', formattedUser);
+  return formattedUser;
+}

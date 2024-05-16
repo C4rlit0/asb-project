@@ -1,5 +1,23 @@
 /* eslint-env jquery, browser */
 $(document).ready(() => {
+
+  // // Let user choose a profile picture
+  // document.getElementById('profilePicture').addEventListener('change', function() {
+  //   var file = this.files[0];
+  //   if (file) {
+  //     var reader = new FileReader();
+  //     reader.onload = function(event) {
+  // document.querySelector('.profile').style.display = 'none';
+  // document.querySelector('.profile-preview').style.display = 'block';
+  // document.querySelector('.profile-preview').src = event.target.result;
+  //     };
+  //     reader.readAsDataURL(file);
+  //   } else {
+  //     document.querySelector('.profile').style.display = 'block';
+  //     document.querySelector('.profile-preview').style.display = 'none';
+  //     document.querySelector('.profile-preview').src = '';
+  //   }
+  // });
   // function submitForm(event) {
   //   event.preventDefault(); // Empêche l'action par défaut de soumettre le formulaire
 

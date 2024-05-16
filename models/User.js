@@ -44,13 +44,14 @@ const User = {
   findByEmail: async function (email) {
     const records = await usersTable
       .select({ view: process.env.AIRTABLE_ALL_USERS_VIEW, filterByFormula: `EMAIL = "${email}"` })
-      // .select({ filterByFormula: `email = "${email}"` })
       .firstPage();
     if (records.length > 0) {
+      
       const {
         id,
-        fields
+        fields,
       } = records[0];
+      
       return { id, fields };
     } else {
       console.log('No records found');
@@ -68,6 +69,12 @@ const User = {
   updatePassword: async function (userId, newPassword) {
     const hashedPassword = await bcrypt.hash(newPassword, 10);
     await usersTable.update(userId, { PASSWORD: hashedPassword });
+  },
+  updateProfile: async function (userId, email, name) {
+    await usersTable.update(userId, { 
+      EMAIL: email,
+      NAME: name
+    });
   },
   getOnboardingStatus: function (user) {
     return user.fields.onboardingStatus || false;

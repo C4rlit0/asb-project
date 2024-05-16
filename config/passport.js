@@ -20,6 +20,7 @@ passport.serializeUser((user, done) => {
 
 passport.deserializeUser(async (id, done) => {
   try {
+    console.log('deserialise id: ', id);
     return done(null, await User.findById(id));
   } catch (error) {
     return done(error);
@@ -32,6 +33,7 @@ passport.deserializeUser(async (id, done) => {
 passport.use(new LocalStrategy({ usernameField: 'email' }, async (email, password, done) => {
   try {
     const user = await User.findByEmail(email.toLowerCase());
+
     if (!user) {
       return done(null, false, { msg: `Email ${email} not found.` });
     }
