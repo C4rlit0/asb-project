@@ -5,6 +5,8 @@ const fs = require('fs');
 const Airtable = require('airtable');
 
 const base = new Airtable({ apiKey: process.env.AIRTABLE_API_KEY }).base(process.env.AIRTABLE_BASE_ID);
+const usersTable = base(process.env.AIRTABLE_USERS_TABLE_NAME || 'USERS');
+const sessionsTable = base(process.env.AIRTABLE_SESSIONS_TABLE_NAME || 'SESSIONS');
 
 const settingsModel = JSON.parse(fs.readFileSync(path.join(__dirname, './json/userSettingsModel.json')));
 
@@ -35,13 +37,14 @@ const User = {
     const user = {
       EMAIL: email,
       PASSWORD: hashedPassword,
-      // GRAVATAR_URL: this.gravatar({ email }),
+      GRAVATAR_URL: this.gravatar(email),
     };
-    return await base('Users').create(user);
+    return await table.create(user);
   },
   findByEmail: async function (email) {
-    const records = await base('Users')
-      .select({ filterByFormula: `email = "${email}"` })
+    const records = await usersTable
+      .select({ view: process.env.AIRTABLE_ALL_USERS_VIEW, filterByFormula: `EMAIL = "${email}"` })
+      // .select({ filterByFormula: `email = "${email}"` })
       .firstPage();
     if (records.length > 0) {
       const {
@@ -55,23 +58,28 @@ const User = {
     }
   },
   findById: async function (id) {
-    const record = await base('Users').find(id);
+    console.log('Find user by id:', id)
+    const record = await usersTable.find(id);
     return record;
   },
   comparePassword: async function (user, candidatePassword) {
     return await bcrypt.compare(candidatePassword, user.fields.PASSWORD);
   },
+  updatePassword: async function (userId, newPassword) {
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    await usersTable.update(userId, { PASSWORD: hashedPassword });
+  },
   getOnboardingStatus: function (user) {
     return user.fields.onboardingStatus || false;
   },
   setOnboardingStatus: async function (user, status) {
-    await base('Users').update(user.id, { onboardingStatus: status });
+    await usersTable.update(user.id, { onboardingStatus: status });
   },
   getSettings: function (user) {
     return user.fields.settings || {};
   },
   setSettings: async function (user, settings) {
-    await base('Users').update(user.id, { settings: settings });
+    await usersTable.update(user.id, { settings: settings });
   },
   enableGithub: async function (user, username, token) {
     const settings = this.getSettings(user);
@@ -92,19 +100,20 @@ const User = {
     await this.setSettings(user, settings);
   },
   gravatar: function (email, size) {
-    let {
-      userEmail
-    } = email;
-
+    console.log('email:', email);
     if (!size) {
       size = 200;
     }
     if (!email) {
       return `https://gravatar.com/avatar/00000000000000000000000000000000?s=${size}&d=retro`;
     }
-    const md5 = crypto.createHash('md5').update(userEmail).digest('hex');
+    const md5 = crypto.createHash('md5').update(email).digest('hex');
     return `https://gravatar.com/avatar/${md5}?s=${size}&d=retro`;
   },
+  softDelete: function (user) {
+    console.log('softDelete:', user);
+    return usersTable.update(user, { DELETED: true });
+  }
 };
 
 module.exports = User;

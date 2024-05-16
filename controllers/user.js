@@ -206,9 +206,7 @@ exports.postUpdatePassword = async (req, res, next) => {
     return res.redirect('/account');
   }
   try {
-    const user = await User.findById(req.user.id); 
-    user.password = req.body.password;
-    await user.save();
+    const updatePassword = await User.updatePassword(req.user.id, req.body.password);
     req.flash('success', { msg: 'Password has been changed.' });
     res.redirect('/account');
   } catch (err) {
@@ -221,8 +219,11 @@ exports.postUpdatePassword = async (req, res, next) => {
  * Delete user account.
  */
 exports.postDeleteAccount = async (req, res, next) => {
+  const {
+    id,
+  } = req.user
   try {
-    await User.deleteOne({ _id: req.user.id });
+    await User.softDelete(id);
     req.logout((err) => {
       if (err) console.log('Error: Failed to logout.', err);
       req.session.destroy((err) => {
