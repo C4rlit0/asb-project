@@ -11,7 +11,7 @@ exports.getOnboarding = async (req, res) => {
   const user = await User.findById(req.user.id);
 
   return res.render('onboarding', {
-    title: 'Let\'s started!'
+    title: 'Let\'s started!',
   });
 
   // Render onboarding page only if user haven't already done it

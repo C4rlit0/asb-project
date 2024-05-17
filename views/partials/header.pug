@@ -93,7 +93,7 @@ nav.navbar.navbar-expand-lg.navbar-light.bg-light.navbar-light.border-bottom.fix
           ul.nav
             li.nav-item.dropdown
               a#dropdownUserProfile.nav-link.dropdown-toggle(href='#', data-bs-toggle='dropdown', data-bs-auto-close='outside')
-                img.rounded-circle(src=user.profilePicture, alt='Profile picture from Gravatar', width='32', height='32')
+                img.rounded-circle(src=(user.fields.PROFILE_PICTURE_URL), alt='Profile picture from Gravatar', width='32', height='32')
               ul.dropdown-menu.shadow(aria-labelledby='dropdownUserProfile')
                 li
                   a.dropdown-item(href='/account') Account

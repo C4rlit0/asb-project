@@ -156,8 +156,7 @@ exports.postSignup = async (req, res, next) => {
 exports.getAccount = (req, res) => {
   console.log('getAccount - User:', req.user);
   res.render('account/profile', {
-    title: 'Account',
-    user: this.formatUser(req.user.id, req.user.fields)
+    title: 'Account'
   });
 };
 
@@ -549,19 +548,3 @@ exports.postForgot = (req, res, next) => {
     .then(() => res.redirect('/forgot'))
     .catch(next);
 };
-
-exports.formatUser = (id, fields) => {
-  const formattedUser = {
-    recId: id,
-    id: fields.ID,
-    email: fields.EMAIL,
-    password: fields.PASSWORD,
-    name: fields.NAME,
-    onboardingStatus: fields.ONBOARDING_DONE,
-    emailVerified: fields.EMAIL_VERIFIED,
-    useGravatar: fields.USE_GRAVATAR,
-    profilePicture: fields.USE_GRAVATAR ? fields.GRAVATAR_URL : fields.CUSTOM_PICTURE_URL,
-  };
-  console.log('formatUser :', formattedUser);
-  return formattedUser;
-}

@@ -37,9 +37,9 @@ const User = {
     const user = {
       EMAIL: email,
       PASSWORD: hashedPassword,
-      GRAVATAR_URL: this.gravatar(email),
+      PROFILE_PICTURE_URL: this.gravatar(email),
     };
-    return await table.create(user);
+    return await usersTable.create(user);
   },
   findByEmail: async function (email) {
     const records = await usersTable
@@ -73,7 +73,7 @@ const User = {
   updateProfile: async function (userId, email, name) {
     await usersTable.update(userId, { 
       EMAIL: email,
-      NAME: name
+      NAME: name,
     });
   },
   getOnboardingStatus: function (user) {

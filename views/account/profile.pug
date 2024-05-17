@@ -6,16 +6,13 @@ block content
       h3.fw-normal Profile Information
     include ../partials/flash
     main
-    if (user)
-      script.
-        console.log(res.user);
-      form(action='/account/profile', method='POST')
+      form(action='/account', method='POST')
         input(type='hidden', name='_csrf', value=_csrf)
         .form-floating.mb-3
-          input.form-control(type='email', name='email', id='email', value=user.email, autocomplete='email', required)
+          input.form-control(type='email', name='email', id='email', value=user.fields.EMAIL, autocomplete='email', required)
           label(for='email') Email
           .pl-3
-            if user.emailVerified === 'true'
+            if user.fields.EMAIL_VERIFIED === 'true'
               .text-success.font-italic
                 | Verified
             else
@@ -23,30 +20,56 @@ block content
                 | Unverified: &nbsp;
                 a(href='/account/verify') Send verification email
         .form-floating.mb-3
-          input.form-control(type='text', name='name', id='name', value=user ? username : '', autocomplete='name')
+          input.form-control(type='text', name='name', id='name', value=user.fields ? user.fields.NAME : '', autocomplete='name')
           label(for='name') Name
-        .form-floating.mb-3
-          .d-flex.align-items-center
-            .form-check.form-switch
-              input.form-check-input(type='checkbox', name='useGravatar', id='useGravatar', value='true', checked=user.useGravatar)
-              label(for='useGravatar', class='form-check-label ms-2') Use Gravatar
+        //- .form-floating.mb-3
+        //-   .d-flex.align-items-center
+        //-     .form-check.form-switch
+        //-       input.form-check-input(type='checkbox', name='useGravatar', id='useGravatar', value='true', checked=user.useGravatar)
+        //-       label(for='useGravatar', class='form-check-label ms-2') Use Gravatar
+        //- .form-floating.mb-3#profilePictureDiv(style=(user.useGravatar ? 'display: none;' : 'display: block;'))
+        //-   .pl-2
+        //-     input.form-control(type='file', name='profilePicture', id='profilePicture', accept='image/jpg, image/jpeg, image/png')
         .form-floating.mb-3
           .pl-2
-            img.rounded(src=(user.profilePicture), class='profile', width='100', height='100')
-        .form-group#profilePictureDiv(style=(user.useGravatar ? 'display: none;' : 'display: block;'))
-          .pl-2
-            input.form-control(type='file', name='profilePicture', id='profilePicture', accept='image/jpg, image/jpeg, image/png')
-        script.
-          // Let user choose a profile picture
-          document.getElementById('useGravatar').addEventListener('change', function() {
-            var useGravatar = this.checked;
-            var profilePictureDiv = document.getElementById('profilePictureDiv');
-            if (!useGravatar) {
-              profilePictureDiv.style.display = 'block';
-            } else {
-              profilePictureDiv.style.display = 'none';
-            }
-          });
+            img.rounded(src=user.fields.PROFILE_PICTURE_URL, class='profile', width='100', height='100')
+        //- script.
+        //-   // Let user choose a profile picture
+        //-   document.getElementById('useGravatar').addEventListener('change', function() {
+        //-     var useGravatar = this.checked;
+        //-     var profilePictureDiv = document.getElementById('profilePictureDiv');
+        //-     if (!useGravatar) {
+        //-       profilePictureDiv.style.display = 'block';
+        //-     } else {
+        //-       profilePictureDiv.style.display = 'none';
+        //-     }
+        //-   });
+
+          //- // Upload profile picture
+          //- document.getElementById('profilePicture').addEventListener('change', function() {
+          //-   var file = this.files[0];
+          //-   var formData = new FormData();
+          //-   var _csrf = document.querySelector('input[name="_csrf"]').value;
+          //-   formData.append('profilePicture', file);
+          //-   formData.append('_csrf', _csrf);
+
+          //-   // Make a POST request to upload the file and add csrf token
+          //-   fetch('/api/upload', {
+          //-     method: 'POST',
+          //-     body: formData
+          //-   })
+          //-   .then(response => {
+          //-     if (response.ok) {
+          //-       //- Show flash message with update messages.success
+          //-       //- window.location.reload();
+          //-       console.log(response);
+          //-     }
+          //-     throw new Error('Network response was not ok.');
+          //-   })
+          //-   .catch(error => {
+          //-     console.error(error);
+          //-   });
+          //- });
         .form-group
           .pl-2
             button.w-100.btn.btn-lg.btn-success(type="submit")
