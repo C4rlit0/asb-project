@@ -79,8 +79,8 @@ const User = {
   getOnboardingStatus: function (user) {
     return user.fields.onboardingStatus || false;
   },
-  setOnboardingStatus: async function (user, status) {
-    await usersTable.update(user.id, { onboardingStatus: status });
+  setOnboardingStatus: async function (userId, status) {
+    await usersTable.update(userId, { ONBOARDING_DONE: status });
   },
   getSettings: function (user) {
     return user.fields.settings || {};
@@ -88,14 +88,26 @@ const User = {
   setSettings: async function (user, settings) {
     await usersTable.update(user.id, { settings: settings });
   },
-  enableGithub: async function (user, username, token) {
-    const settings = this.getSettings(user);
-    settings.github = {
-      enabled: true,
+  setGithubSettings: async function (userId, settings) {
+    const {
       username,
       token,
-    };
-    await this.setSettings(user, settings);
+      repository,
+    } = settings;
+
+    await usersTable.update(userId, {
+      GITHUB_ENABLED: false,
+      GITHUB_OWNER: repository.owner,
+      GITHUB_ORG: username,
+      GITHUB_PAT: token,
+      GITHUB_REPO: repository.name,
+      GITHUB_REPO_STATUS: repository.private ? 'private' : 'public',
+      GITHUB_REPO_DESCRIPTION: repository.description,
+      GITHUB_REPO_CREATION_DATE: repository.creationDate,
+    });
+  },
+  enableGithub: async function (userId) {
+    await usersTable.update(userId, { GITHUB_ENABLED: true });
   },
   disableGithub: async function (user) {
     const settings = this.getSettings(user);

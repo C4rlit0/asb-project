@@ -6,13 +6,9 @@ const User = require('../models/User');
  * Settings page.
  */
 exports.getSettings = async (req, res) => {
-  // Get the user from the database
-  const user = await User.findById(req.user.id);
-  const settings = user.getSettings();
 
   res.render('account/settings', {
     title: 'Update your settings',
-    settings,
   });
 };
 

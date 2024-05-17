@@ -59,12 +59,6 @@ exports.postOnboarding = async (req, res, next) => {
   }
 
   try {
-    // Get the user from the database
-    const user = await User.findById(req.user.id);
-
-    if (!user) {
-      throw new Error('User not found.');
-    }
 
     // Extract username from GitHub repo URL
     const username = req.body.floatingInputRepo.split('/')[3];
@@ -95,13 +89,10 @@ exports.postOnboarding = async (req, res, next) => {
       };
 
       // If the response is 200, we can save the Github settings
-      User.setSettings(user, {
-        github: {
-          enabled: false,
+      User.setGithubSettings(req.user.id, {
           username,
           token: req.body.floatingInputPat,
           repository: repoInfos,
-        }
       });
 
       req.flash('success', { msg: 'Your repo/PAT is valid!' });
@@ -126,26 +117,10 @@ exports.postOnboarding = async (req, res, next) => {
 exports.postOnboardingNextStep = async (req, res, next) => {
   // This function receives the POST request from the onboarding form with the repo infos
   try {
-    // Get the user from the database
-    const user = await User.findById(req.user.id);
-
-    if (!user) {
-      throw new Error('User not found.');
-    }
 
     // If user validate the repo infos, we can enable the Github integration and set onboarding status to true
-    const settings = user.getSettings();
-    user.setSettings({
-      github: {
-        enabled: true,
-        username: settings.github.username,
-        token: settings.github.token,
-        repository: settings.github.repository,
-      }
-    });
-    user.setOnboardingStatus(true);
-
-    await user.save();
+    User.enableGithub(req.user.id);
+    // User.setOnboardingStatus(req.user.id, true);
 
     req.flash('success', { msg: 'Your settings have been saved.' });
     // Redirect to the user dashboard

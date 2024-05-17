@@ -7,16 +7,16 @@ const User = require('../models/User');
 
 exports.getDashboard = async (req, res) => {
   // Function to get all saved automations from GitHub
+  const {
+    GITHUB_ORG,
+    GITHUB_PAT,
+    GITHUB_REPO,
+  } = req.user.fields;
 
-  // Get the user from the database
-  const user = await User.findById(req.user.id);
-  const settings = user.getSettings();
-
-  // Test if Github PAT is valid to fetch repo infos
-  const response = await fetch(`https://api.github.com/repos/${settings.github.repository.owner}/${settings.github.repository.name}/contents/`, {
+  const response = await fetch(`https://api.github.com/repos/${GITHUB_ORG}/${GITHUB_REPO}/contents/`, {
     method: 'GET',
     headers: {
-      Authorization: `token ${settings.github.token}`
+      Authorization: `token ${GITHUB_PAT}`
     }
   });
 
