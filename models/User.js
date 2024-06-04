@@ -107,7 +107,10 @@ const User = {
     });
   },
   enableGithub: async function (userId) {
-    await usersTable.update(userId, { GITHUB_ENABLED: true });
+    await usersTable.update(userId, { 
+      GITHUB_ENABLED: true,
+      ONBOARDING_DONE: 'true',
+    });
   },
   disableGithub: async function (user) {
     const settings = this.getSettings(user);

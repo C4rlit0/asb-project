@@ -1,36 +1,144 @@
 extends layout
 
 block content
-  //- main
-    //- include partials/flash
-  .position-relative.overflow-hidden.p-3.p-md-5.m-md-3.text-center.bg-light
-    .col-md-5.p-lg-5.mx-auto.my-5
-      h1.display-4.fw-normal Airtable Automation Backup
-      p.lead.fw-normal Backup and version your Airtable automations without thinking about it!
-      a.btn.btn-outline-secondary(href="#") Coming soon
-    .product-device.shadow-sm.d-none.d-md-block
-    .product-device.product-device-2.shadow-sm.d-none.d-md-block
+  .mt-6
+    include ./partials/flash
+    section.bg-white.w-full
+      .pt-20.box-border.flex.flex-col.items-center.content-center.px-8.mx-auto.leading-6.text-black.border-0.border-gray-300.border-solid.max-w-7xl(class='lg:py-16 md:flex-row lg:px-16')
+        .mr-auto.place-self-center(class='lg:col-span-6')
+          .h-full.w-full.flex.flex-col.justify-center.items-start.max-w-2xl.mx-auto.space-y-8(class='sm:items-center lg:items-start lg:mx-0 sm:pl-10 sm:pr-10')
+            .relative.overflow-hidden.z-20.inline-block.rounded-full.px-5.font-medium.text-xs.leading-6.bg-gray-100(class='py-1.5')
+              span.text-gray-600 Discover how it works
+              a.font-semibold.bg-indigo-600.text-white.h-full.px-3.rounded-full.translate-x-2.inline-block(href='/more' class='py-0.5')
+                span.absolute.inset-0(aria-hidden='true')
+                | Learn More 
+                span(aria-hidden='true') &rarr;
+            h1.relative.z-20.w-full.text-left(class='sm:text-center lg:text-left')
+              span.block.text-4xl.font-bold.tracking-tight(class='sm:text-5xl xl:text-6xl')
+                span.block.text-gray-900 Keep safe all
+                span.block.relative
+                  span.bg-gradient-to-r.text-indigo-600 your
+                  span.relative.text-gray-900.inline-block
+                    span.relative.z-30 Automations
+                    svg.w-full.absolute.bottom-0.translate-y-2.h-auto.stroke-current.text-indigo-500(viewbox='0 0 194 8' fill='none' xmlns='http://www.w3.org/2000/svg')
+                      path(d='M2 6c39.898-3.018 133.755-7.244 190 0' stroke-width='4' stroke-linecap='round')
+            p.text-base.relative.z-20.text-gray-500.text-left(class='sm:text-xl lg:text-lg xl:text-xl sm:text-center lg:text-left')
+              | AirSave is a browser extension and SaaS solution in development that will revolutionize your way of working with Airtable.
+              br
+              | AirSave is the solution you&apos;ve been waiting for.
+            .z-20.relative.w-full(class='sm:mx-auto sm:max-w-lg sm:text-center lg:mx-0 lg:text-left')
+              form.mt-2(class='sm:flex' method='post' action='/notify.php')
+                label#sign-up-beta.sr-only(for='email') Email
+                .space-y-2.w-full
+                  .relative.group.w-full
+                    input#email.block.w-full.transition.duration-75.border.border-gray-200.rounded-md.shadow-sm.ease-out.duration-500.border-gray-300.h-11.pl-4(name='email' type='email' class='focus:border-indigo-500 focus:ring focus:ring-indigo-600 focus:ring-opacity-20' placeholder='Enter your email')
+                button.rounded.bg-indigo-600.px-4.font-medium.text-sm.py-1.text-white.flex.mt-3.w-full.justify-center.items-center.flex-shrink-0(submit='true' class='hover:bg-indigo-500 sm:ml-3 sm:mt-0 sm:w-auto focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 py-2.5') Notify Me
+              p.mt-3.text-sm.text-gray-500
+                | Signup to be be notified when we officially launched &#x1F680;
+        .box-border.relative.w-full.max-w-lg.mt-10.mb-4.text-center.bg-no-repeat.bg-contain.border-solid(class='md:mt-0 md:max-w-none lg:mb-0 md:w-2/3')
+          img.perspective(src='/images/AirSave Mockup.png' alt='AirSave Mockup' width='100%')
+    section.w-full.bg-white.pt-7.pb-7.tails-selected-element(class='md:pt-20 md:pb-24')
+      .box-border.flex.flex-col.items-center.content-center.px-8.mx-auto.leading-6.text-black.border-0.border-gray-300.border-solid.max-w-7xl(class='md:flex-row lg:px-16')
+        // Image
+        .box-border.relative.w-full.max-w-md.px-4.mt-5.mb-4.-ml-5.text-center.bg-no-repeat.bg-contain.border-solid(class='md:ml-0 md:mt-0 md:max-w-none lg:mb-0 md:w-1/2 xl:pl-10')
+          img.p-2.pl-6.pr-5(src='/images/never-lose-automation.svg' class='xl:pl-16 xl:pr-20')
+        // Content
+        .box-border.order-first.w-full.text-gray-900.border-solid(class='md:w-1/2 md:pl-10 md:order-none')
+          h2.m-0.text-xl.font-semibold.leading-tight.border-0.border-gray-300(class='lg:text-3xl md:text-2xl')
+            | Never lose your Airtable Automations again!
+          p.pt-4.pb-8.m-0.leading-7.text-gray-700.border-0.border-gray-300(class='sm:pr-12 xl:pr-32 lg:text-lg')
+            | You know how powerful automations are, but also how risky it can be to modify them without a chance to revert.
+          ul.p-0.m-0.leading-6.border-0.border-gray-300
+            li.box-border.relative.py-1.pl-0.text-left.text-gray-500.border-solid
+              span.inline-flex.items-center.justify-center.w-6.h-6.mr-2.text-white.bg-indigo-300.rounded-full(data-primary='indigo-400')
+                span.text-sm.font-bold &check;
+              |  Save all changes to your automations
+            li.box-border.relative.py-1.pl-0.text-left.text-gray-500.border-solid
+              span.inline-flex.items-center.justify-center.w-6.h-6.mr-2.text-white.bg-indigo-300.rounded-full(data-primary='indigo-400')
+                span.text-sm.font-bold &check;
+              |  Revert to any previous version with a single click
+            li.box-border.relative.py-1.pl-0.text-left.text-gray-500.border-solid
+              span.inline-flex.items-center.justify-center.w-6.h-6.mr-2.text-white.bg-indigo-300.rounded-full(data-primary='indigo-400')
+                span.text-sm.font-bold &check;
+              |  Work in peace, knowing every change is tracked and reversible.
+        // End  Content
+      .box-border.flex.flex-col.items-center.content-center.px-8.mx-auto.mt-2.leading-6.text-black.border-0.border-gray-300.border-solid.max-w-7xl(class='md:mt-20 xl:mt-0 md:flex-row lg:px-16')
+        // Content
+        .box-border.w-full.text-gray-900.border-solid.py-8(class='md:w-1/2 md:pl-6 xl:pl-32')
+          h2.m-0.text-xl.font-semibold.leading-tight.border-0.border-gray-300(class='lg:text-3xl md:text-2xl')
+            | AirSave is under development
+          p.pt-4.pb-8.m-0.leading-7.text-gray-700.border-0.border-gray-300(class='sm:pr-10 lg:text-lg')
+            | But you can be among the first to benefit by signing up for our waiting list.
+          ul.p-0.m-0.leading-6.border-0.border-gray-300
+            li.box-border.relative.py-1.pl-0.text-left.text-gray-500.border-solid
+              span.inline-flex.items-center.justify-center.w-6.h-6.mr-2.text-white.bg-indigo-300.rounded-full(data-primary='indigo-400')
+                span.text-sm.font-bold &check;
+              |  Be the first to hear about our progress
+            li.box-border.relative.py-1.pl-0.text-left.text-gray-500.border-solid
+              span.inline-flex.items-center.justify-center.w-6.h-6.mr-2.text-white.bg-indigo-300.rounded-full(data-primary='indigo-400')
+                span.text-sm.font-bold &check;
+              |  Get the opporuinity to join our beta program
+            li.box-border.relative.py-1.pl-0.text-left.text-gray-500.border-solid
+              span.inline-flex.items-center.justify-center.w-6.h-6.mr-2.text-white.bg-indigo-300.rounded-full(data-primary='indigo-400')
+                span.text-sm.font-bold &check;
+              |  Obtain a special offer for early adopters
+        // End  Content
+        // Image
+        .box-border.relative.w-full.max-w-md.px-4.mt-10.mb-4.text-center.bg-no-repeat.bg-contain.border-solid(class='md:mt-0 md:max-w-none lg:mb-0 md:w-1/2')
+          img.pl-4(src='/images/work-safe.svg' class='sm:pr-10 xl:pl-10 lg:pr-32')
+    section.w-full.py-8.leading-7.text-white.bg-indigo-600(class='sm:py-12 md:py-16 lg:py-24')
+      .max-w-6xl.px-10.mx-auto.border-solid(class='lg:px-12')
+        .flex.flex-col.items-start.leading-7.text-white.border-0(class='lg:items-center lg:flex-row')
+          .box-border.flex-1.text-center.border-solid(class='sm:text-left')
+            h2.m-0.text-4xl.font-semibold.leading-tight.tracking-tight.text-left.text-white.border-0.border-gray-200(class='sm:text-5xl')
+              | Join Us Now!
+            p.mt-2.text-xl.text-left.text-white.border-0(class='sm:text-2xl')
+              | Our service will help you maximize and boost your productivity.
+          a.inline-flex.items-center.justify-center.w-full.px-5.py-4.mt-6.ml-0.font-sans.text-base.leading-none.text-indigo-600.no-underline.bg-white.border.border-white.border-solid.rounded.cursor-pointer(href='#' onclick='smoothScroll()' class='md:w-auto lg:mt-0 hover:bg-gray-200 hover:text-indigo-700 sm:text-lg lg:ml-6 md:text-xl' data-primary='indigo-600' data-rounded='rounded')
+            | Get Started
+            svg.w-5.h-5.ml-2(xmlns='http://www.w3.org/2000/svg' viewbox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round')
+              line(x1='5' y1='12' x2='19' y2='12')
+              polyline(points='12 5 19 12 12 19')
+    section.w-full.relative.py-16.bg-white.min-w-screen.animation-fade.animation-delay.tails-selected-element
+      .container.px-0.px-8.mx-auto(class='sm:px-12 xl:px-5')
+        p.text-xs.font-bold.text-left.text-indigo-500.uppercase(class='sm:mx-6 sm:text-center sm:text-normal sm:font-bold' data-primary='pink-500')
+          | Got a Question? We&rsquo;ve got answers.
+        h3.mt-1.text-2xl.font-bold.text-left.text-gray-800(class='sm:mx-6 sm:text-3xl md:text-4xl lg:text-5xl sm:text-center sm:mx-0')
+          | Frequently Asked Questions
+        .w-full.px-6.py-6.mx-auto.mt-10.bg-white.border.border-gray-200.rounded-lg(class='sm:px-8 md:px-12 sm:py-8 sm:shadow lg:w-5/6 xl:w-2/3' data-rounded='rounded-lg' data-rounded-max='rounded-full')
+          h3.text-lg.font-bold.text-indigo-500(class='sm:text-xl md:text-2xl' data-primary='purple-500') How does it work?
+          p.mt-2.text-base.text-gray-600(class='sm:text-lg md:text-normal')
+            | We use Airtable OAuth to access your base list. We NEVER access the data in your tables. Then, we save your automations using a browser extension (currently available only for Chrome).
+        .w-full.px-6.py-6.mx-auto.mt-10.bg-white.border.border-gray-200.rounded-lg(class='sm:px-8 md:px-12 sm:py-8 sm:shadow lg:w-5/6 xl:w-2/3' data-rounded='rounded-lg' data-rounded-max='rounded-full')
+          h3.text-lg.font-bold.text-indigo-500(class='sm:text-xl md:text-2xl' data-primary='purple-500') What about pricing?
+          p.mt-2.text-base.text-gray-600(class='sm:text-lg md:text-normal')
+            | As we are still in the development phase, the pricing has not been determined yet, but we will inform you as soon as it is defined. By signing up now, you secure a special launch offer.
+        .w-full.px-6.py-6.mx-auto.mt-10.bg-white.border.border-gray-200.rounded-lg(class='sm:px-8 md:px-12 sm:py-8 sm:shadow lg:w-5/6 xl:w-2/3' data-rounded='rounded-lg' data-rounded-max='rounded-full')
+          h3.text-lg.font-bold.text-indigo-500(class='sm:text-xl md:text-2xl' data-primary='purple-500') Is AirSave affiliated with Airtable?
+          p.mt-2.text-base.text-gray-600(class='sm:text-lg md:text-normal')
+            | AirSave is not affiliated with Airtable. We are a third-party service aiming to enhance your experience with Airtable.
+        .w-full.px-6.py-6.mx-auto.mt-10.bg-white.border.border-gray-200.rounded-lg(class='sm:px-8 md:px-12 sm:py-8 sm:shadow lg:w-5/6 xl:w-2/3' data-rounded='rounded-lg' data-rounded-max='rounded-full')
+          h3.text-lg.font-bold.text-indigo-500(class='sm:text-xl md:text-2xl' data-primary='purple-500') Will my email address be shared or sold?
+          p.mt-2.text-base.text-gray-600(class='sm:text-lg md:text-normal')
+            | No. We respect your privacy. Your email address will only be used to keep you updated about AirSave news.
 
-  .d-md-flex.flex-md-equal.w-100.my-md-3.ps-md-3
-    .bg-dark.me-md-3.pt-3.px-3.pt-md-5.px-md-5.text-center.text-white.overflow-hidden
-      .my-3.py-3
-        h2.display-5 Unlimited Automations
-        p.lead And an even wittier subheading.
-      .bg-light.shadow-sm.mx-auto(style="width: 80%; height: 300px; border-radius: 21px 21px 0 0;")
-    .bg-light.me-md-3.pt-3.px-3.pt-md-5.px-md-5.text-center.overflow-hidden
-      .my-3.p-3
-        h2.display-5 Script Versioning
-        p.lead And an even wittier subheading.
-      .bg-dark.shadow-sm.mx-auto(style="width: 80%; height: 300px; border-radius: 21px 21px 0 0;")
+            
+  script.
+    // When page is loaded we catch mouse move to update transfrom of perspective class
+    window.addEventListener('mousemove', function(e) {
+      let width = window.innerWidth;
+      let height = window.innerHeight;
+      
+      let rotateX = 18;
+      let rotateY = 332;
+      let rotateZ = 13;
+      // Set initial value of perspective
+      let perspective = 1000;
 
-  .d-md-flex.flex-md-equal.w-100.my-md-3.ps-md-3
-    .bg-light.me-md-3.pt-3.px-3.pt-md-5.px-md-5.text-center.overflow-hidden
-      .my-3.p-3
-        h2.display-5 5 Free bases
-        p.lead And an even wittier subheading.
-      .bg-dark.shadow-sm.mx-auto(style="width: 80%; height: 300px; border-radius: 21px 21px 0 0;")
-    .bg-primary.me-md-3.pt-3.px-3.pt-md-5.px-md-5.text-center.text-white.overflow-hidden
-      .my-3.py-3
-        h2.display-5 Full flowchart saved
-        p.lead And an even wittier subheading.
-      .bg-light.shadow-sm.mx-auto(style="width: 80%; height: 300px; border-radius: 21px 21px 0 0;")
+      let offsetX = 1.5 * e.pageX / width;
+      let offsetY = 1.5 * e.pageY / height;
+
+      // Set transform to have a slow effect when mouse move
+      let transform = 'perspective(' + perspective + 'px) rotateX(' + (-offsetY + rotateX) + 'deg) rotateY(' + (offsetX + rotateY) + 'deg) rotateZ(' + (offsetX + rotateZ) + 'deg)';
+      document.querySelector('.perspective').style.transform = transform;
+    });

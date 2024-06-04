@@ -1,0 +1,30 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+@tailwind screens;
+
+/* Create custom variable bg-primary-color #3B13B0 */
+@layer components {
+  .bg-primary-color {
+    background-color: #3B13B0;
+  }
+}
+
+/* Create custom variable text-primary-color #3B13B0 */
+@layer components {
+  .text-primary-color {
+    color: #3B13B0;
+  }
+}
+
+/* Create media query perspective class for home picture but not applying it on small screen */
+@media (min-width: 768px) {
+  .perspective {
+    transform: perspective(1000px) rotateX(18deg) rotateY(332deg) rotateZ(13deg);
+  }
+}
+
+.perspective {
+  border-radius: 8px;
+  box-shadow: 24px 16px 64px 0 rgba(0, 0, 0, 0.08);
+}
