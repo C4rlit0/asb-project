@@ -28,6 +28,9 @@ const axios = require('axios');
 //   host: process.env.REDIS_HOST,
 //   port: process.env.REDIS_PORT,
 //   password: process.env.REDIS_PASSWORD,
+//   // Should use Redis socket if available
+//   socket: '/home/ezcj1275/.cpanel/redis/redis.sock',
+//   db: 6,
 // });
 // redisClient.connect().catch((error) => {
 //   console.error('Error connecting to Redis:', error);
@@ -196,7 +199,7 @@ app.use(session({
   resave: true,
   saveUninitialized: true,
   secret: process.env.SESSION_SECRET,
-  name: 'startercookie', // change the cookie name for additional security in production
+  // name: 'startercookie', // change the cookie name for additional security in production
   cookie: {
     maxAge: 1209600000, // Two weeks in milliseconds
     secure: secureTransfer
