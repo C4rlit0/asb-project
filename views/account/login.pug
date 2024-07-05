@@ -3,15 +3,15 @@ extends ../layout
 block content
   include ../partials/flash
 
-      //- form(action="/login/airtable", method="get") 
-      //-   button.w-full.btn.btn-lg.bg-white.border.shadow(type="submit")
-      //-     | &nbsp;Sign in with&nbsp;
-      //-     img(src="/airtable-logo-150.png", alt="airtable logo", width="100", height="27")
-      //- a.btn.btn-block.btn-google.btn-social(href='/auth/google')
-      //-     i.fab.fa-google.fa-xs
-      //-     | Sign in with Google
-      //- p.mt-3.text-center or
-      //- Login Form
+  //- form(action="/login/airtable", method="get") 
+  //-   button.w-full.btn.btn-lg.bg-white.border.shadow(type="submit")
+  //-     | &nbsp;Sign in with&nbsp;
+  //-     img(src="/images/airtable-logo-150.png", alt="airtable logo", width="100", height="27")
+  //- a.btn.btn-block.btn-google.btn-social(href='/auth/google')
+  //-     i.fab.fa-google.fa-xs
+  //-     | Sign in with Google
+  //- p.mt-3.text-center or
+  //- Login Form
 
   .flex.items-center.justify-center.min-h-full.w-full
     .shadow-2xl.rounded-lg.px-8.py-6.max-w-md.bg-white
@@ -31,7 +31,7 @@ block content
           .flex.items-center
             input#remember.h-4.w-4.rounded.border-gray-300.text-indigo-600(type='checkbox' name='remember' class='focus:ring-indigo-500 focus:outline-none' checked='')
             label.ml-2.block.text-sm.text-gray-700(for='remember' class='dark:text-gray-300') Remember me
-          a.text-xs.text-indigo-500(href='#' class='hover:text-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500')
+          a.text-xs.text-indigo-500(href='/signup' class='hover:text-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500')
             | Create
             | Account
         button.w-full.flex.justify-center.py-2.px-4.border.border-transparent.rounded-md.shadow-sm.text-sm.font-medium.text-white.bg-indigo-600(type='submit' class='hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500') Login
