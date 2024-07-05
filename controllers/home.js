@@ -17,7 +17,7 @@ exports.index = (req, res) => {
   } else {
     // Render the home page if user is not connected
     res.render('home', {
-      title: 'Home'
+      title: 'Keep your Automation safe!'
     });
   }
 };

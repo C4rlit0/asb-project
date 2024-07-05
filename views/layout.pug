@@ -1,29 +1,40 @@
 doctype html
-html.h-100
+html
   head
     meta(charset='utf-8')
     meta(http-equiv='X-UA-Compatible', content='IE=edge')
     meta(name='viewport', content='width=device-width, initial-scale=1.0')
     meta(name='csrf-token', content=_csrf)
-    title #{title} - Airsave.IO
-    link(rel='shortcut icon', href='/favicon.png')
-    //link(rel='stylesheet', href='/css/bootstrap.min.css')
-    link(rel='stylesheet', href='/css/main.css')
+    title Airsave.io - #{title}
+    //- Create og meta
+    meta(property='og:title' content='AirSave Coming Soon')
+    meta(property='og:description' content='AirSave is a platform that allows you to save your Airtable Automations. We are currently in beta and will be launching soon.')
+    meta(property='og:image' content='https://airsave.io/images/AirSave_logo_bold.png')
+    meta(property='og:url' content='https://airsave.io')
+    meta(property='og:type' content='website')
+    meta(property='og:site_name' content='AirSave')
+    meta(property='og:locale' content='en_US')
+    link(rel='shortcut icon', href='/images/favicon_bold.png')
+    link(rel='stylesheet', href='/css/styles.css')
     link(rel='stylesheet', href='https://cdn.jsdelivr.net/npm/cookieconsent@3/build/cookieconsent.min.css')
     link(rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css")
     block head
 
-  body.d-flex.flex-column.h-100
-    include partials/header
-
-    .flex-shrink-0(style='padding-top: 56px;')
-      //- .container-fluid.mt-3
-      block content
-
-    include partials/footer
+  //- body.flex.flex-col.min-h-screen
+  body
+    .drawer(class=user ? 'lg:drawer-open' : '')
+      input#header-drawer.drawer-toggle(type='checkbox')
+      .drawer-content.flex.flex-col.min-h-screen(class=user ? 'bg-base-200' : 'bg-white')
+        include partials/header
+        main.flex-grow.p-8.flex
+          .w-full
+            block content
+        include partials/footer
+      include partials/sidebar
 
     script(src='/js/lib/jquery.min.js')
-    script(src='/js/lib/bootstrap.bundle.min.js')
+    script(src="/js/lib/lottie.min.js")
+    script(src="/js/lib/lordicon.js")
     script(src='/js/main.js')
     script(src='https://cdn.jsdelivr.net/npm/cookieconsent@3/build/cookieconsent.min.js')
 

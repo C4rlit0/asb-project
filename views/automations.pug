@@ -1,0 +1,73 @@
+extends layout
+
+block content
+    main
+        include partials/flash
+        .container.col-xl-10.col-xxl-8.px-4.py-3
+            //- Add a title
+            h1 Automations
+            //- Create a grid with all automation cards
+            .row
+                each automation, index in automations
+                    .col-4
+                        .card.mb-3.shadow(style='cursor: pointer;')
+                            //- Add a click event to open the modal
+                            .card-body(data-toggle='modal', data-target=`#modal-${index}`)
+                                h5.card-title= automation.name
+                                p.card-text= ''
+                                //- Show the automation status
+                                if automation.STATUS === 'active'
+                                    span.badge.bg-success.text-white.ml-2 Active
+                                else
+                                    span.badge.bg-danger.text-white.ml-2 Inactive
+                                //- Show the automation type
+                                if automation.TYPE === 'scheduled'
+                                    span.badge.bg-primary.text-white.ml-2 Scheduled
+                                else
+                                    span.badge.bg-secondary.text-white.ml-2 Manual
+                                //- Show the automation frequency
+                                if automation.FREQUENCY === 'daily'
+                                    span.badge.bg-info.text-white.ml-2 Daily
+                                else if automation.FREQUENCY === 'weekly'
+                                    span.badge.bg-info.text-white.ml-2 Weekly
+                                else
+                                    span.badge.bg-info.text-white.ml-2 Monthly
+                                //- Show the automation last run date
+                                if automation.LAST_RUN_DATE
+                                    p.card-text
+                                        | Last run: 
+                                        span.text-primary= automation.LAST_RUN_DATE
+                                //- Show the automation next run date
+                                if automation.NEXT_RUN_DATE
+                                    p.card-text
+                                        | Next run: 
+                                        span.text-primary= automation.NEXT_RUN_DATE
+                                //- Show the automation last run status
+                                if automation.LAST_RUN_STATUS
+                                    p.card-text
+                                        | Last run status: 
+                                        span.text-primary= automation.LAST_RUN_STATUS
+                                //- Show the automation last run error
+                                if automation.LAST_RUN_ERROR
+                                    p.card-text
+                                        | Last run error: 
+                                        span.text-danger= automation.LAST_RUN_ERROR
+                                //- Show the automation last run duration
+                                if automation.LAST_RUN_DURATION
+                                    p.card-text
+                                        | Last run duration: 
+                                        span.text-primary= automation.LAST_RUN_DURATION
+
+                            //- Add the modal for each automation
+                            .modal.fade(id=`modal-${index}`, tabindex='-1', role='dialog', aria-labelledby=`modal-${index}-label`, aria-hidden='true')
+                                .modal-dialog.modal-fullscreen
+                                    .modal-content
+                                        .modal-header
+                                            h5.modal-title(id=`modal-${index}-label`)= automation.name
+                                            button.close(data-dismiss='modal', aria-label='Close')
+                                                span(aria-hidden='true') &times;
+                                        .modal-body
+                                            //- Add the details of the automation here
+                                            p This is the full screen modal with details for automation #{index + 1}.
+                                        .modal-footer
+                                            button.btn.btn-secondary(data-dismiss='modal') Close

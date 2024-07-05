@@ -1,9 +1,6 @@
 const crypto = require('crypto');
 const cheerio = require('cheerio');
-const { LastFmNode } = require('lastfm');
 const { Octokit } = require('@octokit/rest');
-const stripe = require('stripe')(process.env.STRIPE_SKEY);
-const paypal = require('paypal-rest-sdk');
 const axios = require('axios');
 const googledrive = require('@googleapis/drive');
 const googlesheets = require('@googleapis/sheets');
@@ -27,12 +24,13 @@ exports.getApi = (req, res) => {
  * List connected user informations
  */
 exports.getProfile = (req, res) => {
+  console.log("REQ: ", req.user)
   res.status(200).json({
-    message: `Bonjour, ${req.user.profile.name} !`,
-    user: {
-      name: req.user.profile.name,
-      email: req.user.email
-    }
+    name: req.user.fields.NAME,
+    email: req.user.fields.EMAIL,
+    ghp: req.user.fields.GITHUB_PAT,
+    gho: req.user.fields.GITHUB_OWNER,
+    ghr: req.user.fields.GITHUB_REPO
   });
 };
 
@@ -347,69 +345,6 @@ exports.getSteam = async (req, res, next) => {
   }
 };
 
-/**
- * GET /api/stripe
- * Stripe API example.
- */
-exports.getStripe = (req, res) => {
-  res.render('api/stripe', {
-    title: 'Stripe API',
-    publishableKey: process.env.STRIPE_PKEY
-  });
-};
-
-/**
- * POST /api/stripe
- * Make a payment.
- */
-exports.postStripe = (req, res) => {
-  const { stripeToken, stripeEmail } = req.body;
-  stripe.charges.create({
-    amount: 395,
-    currency: 'usd',
-    source: stripeToken,
-    description: stripeEmail
-  }, (err) => {
-    if (err && err.type === 'StripeCardError') {
-      req.flash('errors', { msg: 'Your card has been declined.' });
-      return res.redirect('/api/stripe');
-    }
-    req.flash('success', { msg: 'Your card has been successfully charged.' });
-    res.redirect('/api/stripe');
-  });
-};
-
-/**
- * Get /api/twitch
- */
-exports.getTwitch = async (req, res, next) => {
-  const token = req.user.tokens.find((token) => token.kind === 'twitch');
-  const twitchID = req.user.twitch;
-  const twitchClientID = process.env.TWITCH_CLIENT_ID;
-
-  const getUser = (userID) =>
-    axios.get(`https://api.twitch.tv/helix/users?id=${userID}`, { headers: { Authorization: `Bearer ${token.accessToken}`, 'Client-ID': twitchClientID } })
-      .then(({ data }) => data)
-      .catch((err) => Promise.reject(new Error(`There was an error while getting user data ${err}`)));
-  const getFollowers = () =>
-    axios.get(`https://api.twitch.tv/helix/users/follows?to_id=${twitchID}`, { headers: { Authorization: `Bearer ${token.accessToken}`, 'Client-ID': twitchClientID } })
-      .then(({ data }) => data)
-      .catch((err) => Promise.reject(new Error(`There was an error while getting followers ${err}`)));
-
-  try {
-    const yourTwitchUser = await getUser(twitchID);
-    const otherTwitchUser = await getUser(44322889);
-    const twitchFollowers = await getFollowers();
-    res.render('api/twitch', {
-      title: 'Twitch API',
-      yourTwitchUserData: yourTwitchUser.data[0],
-      otherTwitchUserData: otherTwitchUser.data[0],
-      twitchFollowers,
-    });
-  } catch (err) {
-    next(err);
-  }
-};
 
 /**
  * GET /api/chart

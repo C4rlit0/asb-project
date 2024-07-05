@@ -22808,24 +22808,26 @@ readers do not read off random characters that represent icons */
   font-weight: 900;
 }
 
-.btn-snapchat {
-  background-color: #fffc00;
-  color: #000 !important;
-}
-.btn-snapchat:hover, .btn-snapchat:active {
-  background-color: #f1ef00;
+html {
+  scroll-behavior: smooth;
 }
 
-.btn-twitch {
-  background-color: #6441a5;
-  color: #FFF !important;
-}
-.btn-twitch:hover, .btn-twitch:active {
-  background-color: #503484;
+.bg-primary-color {
+  background-color: #3B13B0 !important;
 }
 
-.container {
-  max-width: 960px;
+.text-primary-color {
+  color: #3B13B0 !important;
+}
+
+@media (min-width: 768px) {
+  .perspective {
+    transform: perspective(1000px) rotateX(18deg) rotateY(332deg) rotateZ(13deg);
+  }
+}
+.perspective {
+  border-radius: 8px;
+  box-shadow: 24px 16px 64px 0 rgba(0, 0, 0, 0.08);
 }
 
 /*

@@ -5,31 +5,44 @@
 @import "node_modules/@fortawesome/fontawesome-free/scss/regular";
 @import "node_modules/@fortawesome/fontawesome-free/scss/solid";
 
+// Custom variables
+$primary-color: #3B13B0;
+$secondary-color: #FFC107;
+// override btn-primary color
+$btn-primary-color: #3B13B0;
 
-// Basic Snapchat Button CSS
-.btn-snapchat {
-  background-color: #fffc00;
-  color: #000 !important;
+html {
+  scroll-behavior: smooth;
+}
 
-  &:hover, &:active {
-    background-color: #f1ef00;
+// Custom background color class
+.bg-primary-color {
+  background-color: $primary-color !important;
+}
+
+// Custom text color class
+.text-primary-color {
+  color: $primary-color !important;
+}
+
+// Media query for perspective effect on home picture
+@media (min-width: 768px) {
+  .perspective {
+    transform: perspective(1000px) rotateX(18deg) rotateY(332deg) rotateZ(13deg);
   }
 }
 
-// Basic Twitch Button CSS
-.btn-twitch {
-  background-color: #6441a5;
-  color: #FFF !important;
-
-  &:hover, &:active {
-    background-color: #503484;
-  }
+// Perspective class with border radius and shadow
+.perspective {
+  border-radius: 8px;
+  box-shadow: 24px 16px 64px 0 rgba(0, 0, 0, 0.08);
 }
 
-
-.container {
-  max-width: 960px;
-}
+// ------------------------------
+// Custom styles
+// .container {
+//   max-width: 960px;
+// }
 
 /*
  * Custom translucent site header

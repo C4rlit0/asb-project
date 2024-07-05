@@ -1,0 +1,13 @@
+// Sidebar
+.drawer-side
+    label.drawer-overlay(for='header-drawer' aria-label='close sidebar')
+    ul.menu.p-4.w-64.min-h-full.bg-primary.text-white
+        // Logo header
+        .logo-header
+            img.logo(src='/images/AirSave_white_logo.png', alt='Logo' width='180px').mx-auto
+        hr.divider
+        // Sidebar content here
+        li(class=(url === '/dashboard' ? 'active' : ''))
+            a(href="/dashboard").my-2 Sidebar Item 1
+        li
+            a Sidebar Item 2

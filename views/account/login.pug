@@ -1,77 +1,101 @@
 extends ../layout
 
 block content
-  .container.py-4
-    .pb-2.mt-2.mb-4.border-bottom
-      h3.fw-normal Sign in
-    include ../partials/flash
-    main.form-signin
-      //- form(action="/login/airtable", method="get") 
-      //-   button.w-100.btn.btn-lg.bg-white.border.shadow(type="submit")
-      //-     | &nbsp;Sign in with&nbsp;
-      //-     img(src="/airtable-logo-150.png", alt="airtable logo", width="100", height="27")
-      //- a.btn.btn-block.btn-google.btn-social(href='/auth/google')
-      //-     i.fab.fa-google.fa-xs
-      //-     | Sign in with Google
-      //- p.mt-3.text-center or
+  include ../partials/flash
+
+  //- form(action="/login/airtable", method="get") 
+  //-   button.w-full.btn.btn-lg.bg-white.border.shadow(type="submit")
+  //-     | &nbsp;Sign in with&nbsp;
+  //-     img(src="/images/airtable-logo-150.png", alt="airtable logo", width="100", height="27")
+  //- a.btn.btn-block.btn-google.btn-social(href='/auth/google')
+  //-     i.fab.fa-google.fa-xs
+  //-     | Sign in with Google
+  //- p.mt-3.text-center or
+  //- Login Form
+
+  .flex.items-center.justify-center.min-h-full.w-full
+    .shadow-2xl.rounded-lg.px-8.py-6.max-w-md.bg-white
+      h1.text-2xl.font-bold.text-center.mb-4(class="min-w-[320px]") Welcome Back!
       form(method='POST')
         input(type='hidden', name='_csrf', value=_csrf)
-        .form-floating
-          input#email.form-control(type='email' placeholder='name@example.com' name='email' autofocus autocomplete='email' required)
-          label(for='email') Email address
-        .form-floating
-          input#password.form-control(type='password' placeholder='Password' name='password' autocomplete='current-password' required)
-          label(for='password') Password
-        .form-group
-          .offset-md-3.col-md-7.pl-2
-          |  &nbsp;
-        button.w-100.btn.btn-lg.btn-secondary(type="submit")
-          i.fas.fa-user.fa-sm.iconpadding
-          | Login
-        center
-          a.btn.btn-link(href='/forgot') Forgot your password?
+        .mb-4
+          label.block.text-sm.font-medium.text-gray-700.mb-2(for='email' class='dark:text-gray-300') Email Address
+          input#email.form-control.form-input.shadow-sm.rounded-md.w-full.px-3.py-2.border.border-gray-300(type='email' name='email' class='focus:outline-none focus:ring-indigo-500 focus:border-indigo-500' autofocus autocomplete='email' placeholder='your@email.com' required='')
+        .mb-4
+          label.block.text-sm.font-medium.text-gray-700.mb-2(for='password' class='dark:text-gray-300') Password
+          input#password.form-control.form-input.shadow-sm.rounded-md.w-full.px-3.py-2.border.border-gray-300(type='password' name='password' class='focus:outline-none focus:ring-indigo-500 focus:border-indigo-500' autocomplete='current-password' placeholder='Enter your password' required='')
+          a.text-xs.text-gray-600(href='/forgot' class='hover:text-indigo-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500')
+            | Forgot
+            | Password?
+        .flex.items-center.justify-between.mb-4
+          .flex.items-center
+            input#remember.h-4.w-4.rounded.border-gray-300.text-indigo-600(type='checkbox' name='remember' class='focus:ring-indigo-500 focus:outline-none' checked='')
+            label.ml-2.block.text-sm.text-gray-700(for='remember' class='dark:text-gray-300') Remember me
+          a.text-xs.text-indigo-500(href='/signup' class='hover:text-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500')
+            | Create
+            | Account
+        button.w-full.flex.justify-center.py-2.px-4.border.border-transparent.rounded-md.shadow-sm.text-sm.font-medium.text-white.bg-indigo-600(type='submit' class='hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500') Login
 
-      //- input(type='hidden', name='_csrf', value=_csrf)
-      //- .form-group.row.mb-3
-      //-   label.col-md-3.col-form-label.font-weight-bold.text-right(for='email') Email
-      //-   .col-md-7
-      //-     input.form-control(type='email', name='email', id='email', placeholder='Email', autofocus, autocomplete='email', required)
-      //- .form-group.row.mb-3
-      //-   label.col-md-3.col-form-label.font-weight-bold.text-right(for='password') Password
-      //-   .col-md-7
-      //-     input.form-control(type='password', name='password', id='password', placeholder='Password', autocomplete='current-password', required)
-      //- .form-group
-      //-   .offset-md-3.col-md-7.pl-2
-      //-     button.col-md-3.btn.btn-secondary(type='submit')
-      //-       i.far.fa-user.fa-sm
-      //-       | &nbsp;Login
+
+      //- form(method='POST')
+      //-   input(type='hidden', name='_csrf', value=_csrf)
+      //-   .mb-4
+      //-     input#email.form-control(type='email' placeholder='name@example.com' name='email' autofocus autocomplete='email' required class="form-input")
+      //-     label(for='email') Email address
+      //-   .mb-4
+      //-     input#password.form-control(type='password' placeholder='Password' name='password' autocomplete='current-password' required class="form-input")
+      //-     label(for='password') Password
+      //-   .form-group
+      //-     .offset-md-3.col-md-7.pl-2
+      //-     |  &nbsp;
+      //-   button.w-full.btn.btn-lg.btn-secondary(type="submit")
+      //-     i.fas.fa-user.fa-sm.iconpadding
+      //-     | Login
+      //-   center
       //-     a.btn.btn-link(href='/forgot') Forgot your password?
-      //- .form-group
-      //-   .offset-md-3.col-md-7.pl-2
-      //-     hr
-      //- .form-group
-      //-   .offset-md-3.col-md-7.pl-2.d-grid.gap-2
-      //-     a.btn.btn-block.btn-google.btn-social(href='/auth/google')
-      //-       i.fab.fa-google-plus-g.fa-xs
-      //-       | Sign in with Google
-          //- a.btn.btn-block.btn-facebook.btn-social(href='/auth/facebook')
-          //-   i.fab.fa-facebook-f.fa-sm
-          //-   | Sign in with Facebook
-          //- a.btn.btn-block.btn-instagram.btn-social(href='/auth/instagram')
-          //-   i.fab.fa-instagram.fa-sm
-          //-   | Sign in with Instagram
-          //- a.btn.btn-block.btn-twitter.btn-social(href='/auth/twitter')
-          //-   i.fab.fa-twitter.fa-sm
-          //-   | Sign in with Twitter
-          //- a.btn.btn-block.btn-linkedin.btn-social(href='/auth/linkedin')
-          //-   i.fab.fa-linkedin-in.fa-sm
-          //-   | Sign in with LinkedIn
-          //- a.btn.btn-block.btn-twitch.btn-social(href='/auth/twitch')
-          //-   i.fab.fa-twitch.fa-sm
-          //-   | Sign in with Twitch
-          //- a.btn.btn-block.btn-github.btn-social(href='/auth/github')
-          //-   i.fab.fa-github.fa-sm
-          //-   | Sign in with GitHub
-          //- a.btn.btn-block.btn-snapchat.btn-social(href='/auth/snapchat')
-          //-   i.fab.fa-snapchat-ghost.fa-sm
-          //-   | Sign in with Snapchat
+
+
+    //- input(type='hidden', name='_csrf', value=_csrf)
+    //- .form-group.row.mb-3
+    //-   label.col-md-3.col-form-label.font-weight-bold.text-right(for='email') Email
+    //-   .col-md-7
+    //-     input.form-control(type='email', name='email', id='email', placeholder='Email', autofocus, autocomplete='email', required)
+    //- .form-group.row.mb-3
+    //-   label.col-md-3.col-form-label.font-weight-bold.text-right(for='password') Password
+    //-   .col-md-7
+    //-     input.form-control(type='password', name='password', id='password', placeholder='Password', autocomplete='current-password', required)
+    //- .form-group
+    //-   .offset-md-3.col-md-7.pl-2
+    //-     button.col-md-3.btn.btn-secondary(type='submit')
+    //-       i.far.fa-user.fa-sm
+    //-       | &nbsp;Login
+    //-     a.btn.btn-link(href='/forgot') Forgot your password?
+    //- .form-group
+    //-   .offset-md-3.col-md-7.pl-2
+    //-     hr
+    //- .form-group
+    //-   .offset-md-3.col-md-7.pl-2.d-grid.gap-2
+    //-     a.btn.btn-block.btn-google.btn-social(href='/auth/google')
+    //-       i.fab.fa-google-plus-g.fa-xs
+    //-       | Sign in with Google
+        //- a.btn.btn-block.btn-facebook.btn-social(href='/auth/facebook')
+        //-   i.fab.fa-facebook-f.fa-sm
+        //-   | Sign in with Facebook
+        //- a.btn.btn-block.btn-instagram.btn-social(href='/auth/instagram')
+        //-   i.fab.fa-instagram.fa-sm
+        //-   | Sign in with Instagram
+        //- a.btn.btn-block.btn-twitter.btn-social(href='/auth/twitter')
+        //-   i.fab.fa-twitter.fa-sm
+        //-   | Sign in with Twitter
+        //- a.btn.btn-block.btn-linkedin.btn-social(href='/auth/linkedin')
+        //-   i.fab.fa-linkedin-in.fa-sm
+        //-   | Sign in with LinkedIn
+        //- a.btn.btn-block.btn-twitch.btn-social(href='/auth/twitch')
+        //-   i.fab.fa-twitch.fa-sm
+        //-   | Sign in with Twitch
+        //- a.btn.btn-block.btn-github.btn-social(href='/auth/github')
+        //-   i.fab.fa-github.fa-sm
+        //-   | Sign in with GitHub
+        //- a.btn.btn-block.btn-snapchat.btn-social(href='/auth/snapchat')
+        //-   i.fab.fa-snapchat-ghost.fa-sm
+        //-   | Sign in with Snapchat

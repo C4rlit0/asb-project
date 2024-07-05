@@ -16,6 +16,7 @@ const multer = require('multer');
 const rateLimit = require('express-rate-limit');
 const i18n = require('i18n');
 const axios = require('axios');
+
 // const RedisStore = require('connect-redis');
 // const createClient = require('redis').createClient;
 
@@ -27,6 +28,9 @@ const axios = require('axios');
 //   host: process.env.REDIS_HOST,
 //   port: process.env.REDIS_PORT,
 //   password: process.env.REDIS_PASSWORD,
+//   // Should use Redis socket if available
+//   socket: '/home/ezcj1275/.cpanel/redis/redis.sock',
+//   db: 6,
 // });
 // redisClient.connect().catch((error) => {
 //   console.error('Error connecting to Redis:', error);
@@ -89,6 +93,7 @@ const userController = require('./controllers/user');
 const settingsController = require('./controllers/settings');
 const apiController = require('./controllers/api');
 const contactController = require('./controllers/contact');
+const automationsController = require('./controllers/automations');
 
 /**
  * API keys and Passport configuration.
@@ -194,7 +199,7 @@ app.use(session({
   resave: true,
   saveUninitialized: true,
   secret: process.env.SESSION_SECRET,
-  name: 'startercookie', // change the cookie name for additional security in production
+  // name: 'startercookie', // change the cookie name for additional security in production
   cookie: {
     maxAge: 1209600000, // Two weeks in milliseconds
     secure: secureTransfer
@@ -243,6 +248,8 @@ app.use('/js/lib', express.static(path.join(__dirname, 'node_modules/chart.js/di
 app.use('/js/lib', express.static(path.join(__dirname, 'node_modules/popper.js/dist/esm'), { maxAge: 31557600000 }));
 app.use('/js/lib', express.static(path.join(__dirname, 'node_modules/bootstrap/dist/js'), { maxAge: 31557600000 }));
 app.use('/js/lib', express.static(path.join(__dirname, 'node_modules/jquery/dist'), { maxAge: 31557600000 }));
+app.use('/js/lib', express.static(path.join(__dirname, 'node_modules/lottie-web/build/player'), { maxAge: 31557600000 }));
+app.use('/js/lib', express.static(path.join(__dirname, 'node_modules/@lordicon/element/release'), { maxAge: 31557600000 }));
 app.use('/webfonts', express.static(path.join(__dirname, 'node_modules/@fortawesome/fontawesome-free/webfonts'), { maxAge: 31557600000 }));
 
 /**
@@ -274,6 +281,8 @@ app.post('/account/delete', passportConfig.isAuthenticated, userController.postD
 app.get('/account/unlink/:provider', passportConfig.isAuthenticated, userController.getOauthUnlink);
 app.get('/account/settings', passportConfig.isAuthenticated, settingsController.getSettings);
 app.post('/account/settings', passportConfig.isAuthenticated, settingsController.postSettings);
+app.get('/automations', passportConfig.isAuthenticated, automationsController.getAutomations);
+// app.post('/automations', passportConfig.isAuthenticated, automationsController.postAutomations);
 
 /**
  * API examples routes.
@@ -283,14 +292,11 @@ app.get('/api/profile', passportConfig.isAuthenticated, apiController.getProfile
 app.get('/api/lastfm', apiController.getLastfm);
 app.get('/api/nyt', apiController.getNewYorkTimes);
 app.get('/api/steam', passportConfig.isAuthenticated, passportConfig.isAuthorized, apiController.getSteam);
-app.get('/api/stripe', apiController.getStripe);
-app.post('/api/stripe', apiController.postStripe);
 app.get('/api/scraping', apiController.getScraping);
 app.get('/api/foursquare', passportConfig.isAuthenticated, passportConfig.isAuthorized, apiController.getFoursquare);
 app.get('/api/tumblr', passportConfig.isAuthenticated, passportConfig.isAuthorized, apiController.getTumblr);
 app.get('/api/facebook', passportConfig.isAuthenticated, passportConfig.isAuthorized, apiController.getFacebook);
 app.get('/api/github', passportConfig.isAuthenticated, passportConfig.isAuthorized, apiController.getGithub);
-app.get('/api/twitch', passportConfig.isAuthenticated, passportConfig.isAuthorized, apiController.getTwitch);
 app.get('/api/paypal', apiController.getPayPal);
 app.get('/api/paypal/success', apiController.getPayPalSuccess);
 app.get('/api/paypal/cancel', apiController.getPayPalCancel);

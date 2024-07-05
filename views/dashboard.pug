@@ -1,34 +1,152 @@
 extends layout
 
 block content
-  .container.py-4
-    //- we create a dashboard to show the user's automations and use bootstrap to style it like AdminLTE
-    main
-      include partials/flash
-      //- Add 4 metrics rounded cards
-      .container
-        .row
-          .col-lg-3.col-6
-            .card.bg-info
-              .card-body
-                h5.card-title Saved Automations
-                p.card-text= automations ? automations.length : 0
-                a.btn.btn-primary(href='/automations') View
-          .col-lg-3.col-6
-            .card.bg-success
-              .card-body
-                h5.card-title Devices
-                p.card-text= devices ? devices.length : 0
-                a.btn.btn-primary(href='/devices') View
-          .col-lg-3.col-6
-            .card.bg-warning
-              .card-body
-                h5.card-title Users
-                p.card-text= users ? users.length : 0
-                a.btn.btn-primary(href='/users') View
-          .col-lg-3.col-6
-            .card.bg-danger
-              .card-body
-                h5.card-title Logs
-                p.card-text= logs ? logs.length : 0
-                a.btn.btn-primary(href='/logs') View
+  //- include partials/sidebar
+  include partials/flash
+
+  .flex.justify-center.w-full.h-full
+    .grid.grid-row-2.w-full.h-fit
+      //- Step One
+      .grid.grid-cols-4.row-span-1.gap-6.mb-3.h-fit
+        .col-span-1
+          .card.bg-white.shadow-lg.rounded-lg(class='group/item hover:bg-slate-100')
+            .card-body.ps-4.pe-6.py-3
+              .card-title.text-success.text-sm +2 last week
+              div.text-end
+                h3.text-slate-600.text-6xl= automations ? automations.length : 0
+                p Saved Automations
+                .invisible.flex.items-center.whitespace-nowrap.rounded-full.py-1.pl-4.pr-3.text-sm.text-slate-500.transition(href='#' class='group/edit group-hover/item:visible')
+                  span.font-semibold.transition(class='group-hover/edit:text-gray-700') View
+                  svg.mt-px.h-5.w-5.text-slate-400.transition(class='group-hover/edit:translate-x-0.5 group-hover/edit:text-slate-500' viewbox='0 0 20 20' fill='currentColor')
+                    path(fill-rule='evenodd' d='M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z' clip-rule='evenodd')
+        .col-span-1
+          .card.bg-white.shadow-lg.rounded-lg(class='group/item hover:bg-slate-100')
+            .card-body.ps-4.pe-6.py-3
+              .card-title.text-success.text-sm Pro plan
+              div.text-end
+                h3.text-slate-600.text-6xl 5
+                p /10 Bases
+                .invisible.flex.items-center.whitespace-nowrap.rounded-full.py-1.pl-4.pr-3.text-sm.text-slate-500.transition(href='#' class='group/edit group-hover/item:visible')
+                  span.font-semibold.transition(class='group-hover/edit:text-gray-700') View
+                  svg.mt-px.h-5.w-5.text-slate-400.transition(class='group-hover/edit:translate-x-0.5 group-hover/edit:text-slate-500' viewbox='0 0 20 20' fill='currentColor')
+                    path(fill-rule='evenodd' d='M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z' clip-rule='evenodd')
+        .col-span-1
+          .card.bg-white.shadow-lg.rounded-lg(class='group/item hover:bg-slate-100')
+            .card-body.ps-4.pe-6.py-3
+              .card-title.text-success.text-sm 3 min ago
+              div.text-end
+                h3.text-slate-600.text-6xl 8
+                p Changes
+                .invisible.flex.items-center.whitespace-nowrap.rounded-full.py-1.pl-4.pr-3.text-sm.text-slate-500.transition(href='#' class='group/edit group-hover/item:visible')
+                  span.font-semibold.transition(class='group-hover/edit:text-gray-700') View
+                  svg.mt-px.h-5.w-5.text-slate-400.transition(class='group-hover/edit:translate-x-0.5 group-hover/edit:text-slate-500' viewbox='0 0 20 20' fill='currentColor')
+                    path(fill-rule='evenodd' d='M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z' clip-rule='evenodd')
+        .col-span-1
+          .card.bg-white.shadow-lg.rounded-lg(class='group/item hover:bg-slate-100')
+            .card-body.ps-4.pe-6.py-3
+              .card-title.text-success.text-sm 3 min ago
+              div.text-end
+                h3.text-slate-600.text-6xl 8
+                p Changes
+                .invisible.flex.items-center.whitespace-nowrap.rounded-full.py-1.pl-4.pr-3.text-sm.text-slate-500.transition(href='#' class='group/edit group-hover/item:visible')
+                  span.font-semibold.transition(class='group-hover/edit:text-gray-700') View
+                  svg.mt-px.h-5.w-5.text-slate-400.transition(class='group-hover/edit:translate-x-0.5 group-hover/edit:text-slate-500' viewbox='0 0 20 20' fill='currentColor')
+                    path(fill-rule='evenodd' d='M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z' clip-rule='evenodd')
+      .grid.row-span-1.grid-cols-6.gap-6.w-full.mt-3.h-full
+        .col-span-4.h-full
+          .card.bg-white.shadow-lg.rounded-lg(class='group/item min-h-full')
+            .card-body.ps-4.pe-6.py-3
+              .card-title.text-primary.text-sm.mb-4 Your Airtable Bases
+              div.text-start.items-center
+                div 
+                  .btn.btn-square Un
+                .divider
+                div 
+                  .btn.btn-square Ci
+                .divider
+                div
+                  .btn.btn-square De
+        .col-span-2.h-full
+          .card.bg-white.shadow-lg.rounded-lg(class='group/item min-h-full')
+            .card-body.ps-4.pe-6.py-3
+              .card-title.text-primary.text-sm Last activity
+              ul(role='list')
+                li.relative.flex.items-center.justify-between.rounded-xl.p-4(class='group/item hover:bg-slate-100')
+                  .flex.gap-4
+                    .flex-shrink-0
+                      lord-icon(src='https://cdn.lordicon.com/rsbokaso.json' trigger='hover' colors='primary:#16c72e' style='width:24px;height:24px')
+                    .w-full.text-sm.leading-6
+                      a.font-semibold.text-slate-900(href='#')
+                        span.absolute.inset-0.rounded-xl(aria-hidden='true')
+                        | Sync
+                      .text-slate-500 Data Generation
+                  a.invisible.relative.flex.items-center.whitespace-nowrap.rounded-full.py-1.pl-4.pr-3.text-sm.text-slate-500.transition(href='#' class='group/edit hover:bg-slate-200 group-hover/item:visible')
+                    span.font-semibold.transition(class='group-hover/edit:text-gray-700') View
+                    svg.mt-px.h-5.w-5.text-slate-400.transition(class='group-hover/edit:translate-x-0.5 group-hover/edit:text-slate-500' viewbox='0 0 20 20' fill='currentColor')
+                      path(fill-rule='evenodd' d='M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z' clip-rule='evenodd')
+                li.relative.flex.items-center.justify-between.rounded-xl.p-4(class='group/item hover:bg-slate-100')
+                  .flex.gap-4
+                    .flex-shrink-0
+                      lord-icon(src='https://cdn.lordicon.com/wpyrrmcq.json' trigger='hover' colors='primary:#545454' style='width:24px;height:24px')
+                    .w-full.text-sm.leading-6
+                      a.font-semibold.text-slate-900(href='#')
+                        span.absolute.inset-0.rounded-xl(aria-hidden='true')
+                        | Delete
+                      .text-slate-500 Save new file
+                  a.invisible.relative.flex.items-center.whitespace-nowrap.rounded-full.py-1.pl-4.pr-3.text-sm.text-slate-500.transition(href='#' class='group/edit hover:bg-slate-200 group-hover/item:visible')
+                    span.font-semibold.transition(class='group-hover/edit:text-gray-700') View
+                    svg.mt-px.h-5.w-5.text-slate-400.transition(class='group-hover/edit:translate-x-0.5 group-hover/edit:text-slate-500' viewbox='0 0 20 20' fill='currentColor')
+                      path(fill-rule='evenodd' d='M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z' clip-rule='evenodd')
+                li.relative.flex.items-center.justify-between.rounded-xl.p-4(class='group/item hover:bg-slate-100')
+                  .flex.gap-4
+                    .flex-shrink-0
+                      lord-icon(src='https://cdn.lordicon.com/rsbokaso.json' trigger='hover' colors='primary:#16c72e' style='width:24px;height:24px')
+                    .w-full.text-sm.leading-6
+                      a.font-semibold.text-slate-900(href='#')
+                        span.absolute.inset-0.rounded-xl(aria-hidden='true')
+                        | Sync
+                      .text-slate-500 Add client from Gmail
+                  a.invisible.relative.flex.items-center.whitespace-nowrap.rounded-full.py-1.pl-4.pr-3.text-sm.text-slate-500.transition(href='#' class='group/edit hover:bg-slate-200 group-hover/item:visible')
+                    span.font-semibold.transition(class='group-hover/edit:text-gray-700') View
+                    svg.mt-px.h-5.w-5.text-slate-400.transition(class='group-hover/edit:translate-x-0.5 group-hover/edit:text-slate-500' viewbox='0 0 20 20' fill='currentColor')
+                      path(fill-rule='evenodd' d='M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z' clip-rule='evenodd')
+                li.relative.flex.items-center.justify-between.rounded-xl.p-4(class='group/item hover:bg-slate-100')
+                  .flex.gap-4
+                    .flex-shrink-0
+                      lord-icon(src='https://cdn.lordicon.com/rsbokaso.json' trigger='hover' colors='primary:#16c72e' style='width:24px;height:24px')
+                    .w-full.text-sm.leading-6
+                      a.font-semibold.text-slate-900(href='#')
+                        span.absolute.inset-0.rounded-xl(aria-hidden='true')
+                        | Sync
+                      .text-slate-500 Alert User
+                  a.invisible.relative.flex.items-center.whitespace-nowrap.rounded-full.py-1.pl-4.pr-3.text-sm.text-slate-500.transition(href='#' class='group/edit hover:bg-slate-200 group-hover/item:visible')
+                    span.font-semibold.transition(class='group-hover/edit:text-gray-700') View
+                    svg.mt-px.h-5.w-5.text-slate-400.transition(class='group-hover/edit:translate-x-0.5 group-hover/edit:text-slate-500' viewbox='0 0 20 20' fill='currentColor')
+                      path(fill-rule='evenodd' d='M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z' clip-rule='evenodd')
+                li.relative.flex.items-center.justify-between.rounded-xl.p-4(class='group/item hover:bg-slate-100')
+                  .flex.gap-4
+                    .flex-shrink-0
+                      lord-icon(src='https://cdn.lordicon.com/ygvjgdmk.json' trigger='hover' colors='primary:#c71f16' style='width:24px;height:24px')
+                    .w-full.text-sm.leading-6
+                      a.font-semibold.text-slate-900(href='#')
+                        span.absolute.inset-0.rounded-xl(aria-hidden='true')
+                        | Sync error
+                      .text-slate-500 Save new file
+                  a.invisible.relative.flex.items-center.whitespace-nowrap.rounded-full.py-1.pl-4.pr-3.text-sm.text-slate-500.transition(href='#' class='group/edit hover:bg-slate-200 group-hover/item:visible')
+                    span.font-semibold.transition(class='group-hover/edit:text-gray-700') View
+                    svg.mt-px.h-5.w-5.text-slate-400.transition(class='group-hover/edit:translate-x-0.5 group-hover/edit:text-slate-500' viewbox='0 0 20 20' fill='currentColor')
+                      path(fill-rule='evenodd' d='M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z' clip-rule='evenodd')
+                li.relative.flex.items-center.justify-between.rounded-xl.p-4(class='group/item hover:bg-slate-100')
+                  .flex.gap-4
+                    .flex-shrink-0
+                      lord-icon(src='https://cdn.lordicon.com/rsbokaso.json' trigger='hover' colors='primary:#16c72e' style='width:24px;height:24px')
+                    .w-full.text-sm.leading-6
+                      a.font-semibold.text-slate-900(href='#')
+                        span.absolute.inset-0.rounded-xl(aria-hidden='true')
+                        | New automation
+                      .text-slate-500 Send Mail
+                  a.invisible.relative.flex.items-center.whitespace-nowrap.rounded-full.py-1.pl-4.pr-3.text-sm.text-slate-500.transition(href='#' class='group/edit hover:bg-slate-200 group-hover/item:visible')
+                    span.font-semibold.transition(class='group-hover/edit:text-gray-700') View
+                    svg.mt-px.h-5.w-5.text-slate-400.transition(class='group-hover/edit:translate-x-0.5 group-hover/edit:text-slate-500' viewbox='0 0 20 20' fill='currentColor')
+                      path(fill-rule='evenodd' d='M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z' clip-rule='evenodd')
+                
