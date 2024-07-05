@@ -24,7 +24,7 @@ html
   body
     .drawer(class=user ? 'lg:drawer-open' : '')
       input#header-drawer.drawer-toggle(type='checkbox')
-      .drawer-content.flex.flex-col.min-h-screen.bg-base-200
+      .drawer-content.flex.flex-col.min-h-screen(class=user ? 'bg-base-200' : 'bg-white')
         include partials/header
         main.flex-grow.p-8.flex
           .w-full
