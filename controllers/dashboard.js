@@ -24,6 +24,13 @@ exports.getDashboard = async (req, res) => {
   // const automations = await response.json();
   // console.log('automations', automations);
 
+  // Get the user from the database
+  const user = await User.findById(req.user.id);
+
+  // Render dashboard page only if user have already done onboarding process
+  if (user.fields.ONBOARDING_DONE === 'false') {
+    return res.redirect('/onboarding');
+  }
   res.render('dashboard', {
     title: 'Dashboard',
     // automations,
