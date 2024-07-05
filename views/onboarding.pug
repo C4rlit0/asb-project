@@ -5,8 +5,8 @@ block content
   .flex.items-center.justify-center.min-h-full.w-full
     //- Step One
     .grid.grid-cols-10.gap-6#onboardingStepOne.animate__animated.animate__slideInLeft
-      //- First column 60% width
-      .col-start-3.col-span-4.mx-4
+      //- First column
+      .col-start-2.col-span-4.mx-4
         .text-center(class="lg:text-left")
           h1.text-5xl.font-bold.leading-tight.mb-3 👋 Hello, put your automations safe!
           p.text-lg
@@ -31,9 +31,9 @@ block content
               span.flex.justify-between.my-2
                 small.font-bold Workflows
                 small.text-gray-500 Read and write
-      .col-start-7.col-span-2.mx-4.mt-2
+      .col-start-6.col-span-4.mx-4.mt-2
         //- Column with Github Repo URL and Github PAT inputs
-        form.p-8.border.rounded-lg.bg-slate-100.border(id='form' method='POST' action='/onboarding')
+        form.p-8.border.rounded-lg.bg-white.border.min-h-full.content-center(id='form' method='POST' action='/onboarding')
           input(type='hidden', name='_csrf', value=_csrf)
           .mb-3#repoForm
             label.block.text-sm.font-medium.text-gray-700.mb-2(for='floatingInputRepo' class='block text-sm font-medium text-gray-700') Enter your Github repo URL
@@ -48,15 +48,15 @@ block content
 
     //- Step Two
     .grid.grid-cols-10.gap-6.hidden#onboardingStepTwo.animate__animated
-      .col-start-3.col-span-4.mx-4
+      .col-start-2.col-span-4.mx-4
         .text-center(class="lg:text-left")
           h1.text-5xl.font-bold.leading-tight.mb-3 🎉 Let's check that everything is correct!
         p.text-lg
           | Check that the identified repo is the right one
           br
           | It's in this directory that we will save your Airtable automations.
-      .col-start-7.col-span-2.mx-4.mt-2
-        form#form.p-8.border.rounded-lg.bg-slate-100.border(method='POST' action='/onboarding/nextstep')
+      .col-start-6.col-span-4.mx-4.mt-2
+        form#form.p-8.border.rounded-lg.bg-white.border(method='POST' action='/onboarding/nextstep')
           input(type='hidden', name='_csrf', value=_csrf)
           .mb-3
             h6#ownerNameField.text-gray-500.mb-2 Owner name
@@ -83,7 +83,7 @@ block content
     const inputRepo = document.getElementById('floatingInputRepo');
     const inputPat = document.getElementById('floatingInputPat');
     const apiBaseUrl = 'https://api.github.com/repos/';
-    const spinnerIcon = '<lord-icon src="https://cdn.lordicon.com/fyxgoiep.json" trigger="loop" state="loop-cycle" style="width:24px;height:24px" stroke="bold" colors="secondary:#ffffff"></lord-icon>';
+    const spinnerIcon = '<span class="loading loading-infinity loading-md"></span>';
 
     //- When URL path is /onboarding/nextstep check if 'step' is in the query string
     //- If yes, show step 2
