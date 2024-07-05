@@ -1,7 +1,7 @@
 //- Start DaisyUI Header
 if !user
   .navbar.bg-base-100.sticky.top-0.z-30.shadow
-    .navbar-start.ml-96
+    .navbar-start.ml-1(class="xl:ml-96")
       .dropdown
         .btn.btn-square.btn-ghost(tabindex='0' for='header-drawer' role='button' class='lg:hidden')
           svg.h-5.w-5(xmlns='http://www.w3.org/2000/svg' fill='none' viewbox='0 0 24 24' stroke='currentColor')
@@ -35,7 +35,7 @@ if !user
           //-       a Submenu 2
         li
           a(href='/contact') Contact
-    .navbar-end.mr-96
+    .navbar-end.mr-1(class="xl:mr-96")
       a.btn(href='/login') Go to App
 else
   .navbar.bg-base-100.sticky.top-0.z-30.bg-base-200

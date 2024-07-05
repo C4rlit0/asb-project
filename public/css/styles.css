@@ -3378,6 +3378,14 @@ html:has(.drawer-toggle:checked) {
   margin-inline-start: auto;
 }
 
+.ml-1 {
+  margin-left: 0.25rem;
+}
+
+.mr-1 {
+  margin-right: 0.25rem;
+}
+
 .box-border {
   box-sizing: border-box;
 }
@@ -4409,6 +4417,10 @@ html:has(.drawer-toggle:checked) {
     margin-top: 0px;
   }
 
+  .sm\:ml-1 {
+    margin-left: 0.25rem;
+  }
+
   .sm\:flex {
     display: flex;
   }
@@ -4673,6 +4685,14 @@ html:has(.drawer-toggle:checked) {
 @media (min-width: 1280px) {
   .xl\:mt-0 {
     margin-top: 0px;
+  }
+
+  .xl\:ml-96 {
+    margin-left: 24rem;
+  }
+
+  .xl\:mr-96 {
+    margin-right: 24rem;
   }
 
   .xl\:w-2\/3 {
