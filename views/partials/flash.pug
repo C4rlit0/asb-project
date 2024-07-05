@@ -1,17 +1,51 @@
+//- New tailwindcss flash messages
 if messages.errors
-  .bg-red-100.border.border-red-400.text-red-700.px-4.py-3.rounded.relative(role='alert')
-    for error in messages.errors
-      div= error.msg
-    button(type='button' class='absolute top-0 bottom-0 right-0 px-4 py-3' data-bs-dismiss='alert' aria-label='Close') &times;
+  .alert.shadow-lg(role='alert')
+    svg.stroke-current.shrink-0.h-6.w-6(xmlns='http://www.w3.org/2000/svg' fill='none' viewbox='0 0 24 24')
+      path(stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z')
+    div
+      h3.font-bold Error
+        for error in messages.errors
+          .text-xs= error.msg
+    button.btn.btn-sm.btn-dismiss &times;
 
 if messages.info
-  .bg-blue-100.border.border-blue-400.text-blue-700.px-4.py-3.rounded.relative(role='alert')
+  .alert.alert-info.shadow-lg(role='alert')
+    svg.stroke-current.shrink-0.w-6.h-6(xmlns='http://www.w3.org/2000/svg' fill='none' viewbox='0 0 24 24')
+      path(stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z')
     for info in messages.info
-      div= info.msg
-    button(type='button' class='absolute top-0 bottom-0 right-0 px-4 py-3' data-bs-dismiss='alert' aria-label='Close') &times;
+      span= info.msg
+    div
+      button.btn.btn-sm.btn-dismiss &times;
 
 if messages.success
-  .bg-green-100.border.border-green-400.text-green-700.px-4.py-3.rounded.relative(role='alert')
+  .alert.alert-success.shadow-lg(role='alert')
+    svg.stroke-current.shrink-0.h-6.w-6(xmlns='http://www.w3.org/2000/svg' fill='none' viewbox='0 0 24 24')
+      path(stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z')
     for success in messages.success
-      div= success.msg
-    button(type='button' class='absolute top-0 bottom-0 right-0 px-4 py-3' data-bs-dismiss='alert' aria-label='Close') &times;
+      span= success.msg
+    div.bg-transparent
+      button.btn.btn-sm.btn-dismiss &times;
+
+//- //- Old bootstrap 4 flash messages
+//- if messages.info
+//-   .bg-blue-100.border.border-blue-400.text-blue-700.px-4.py-3.rounded.relative(role='alert')
+//-     for info in messages.info
+//-       div= info.msg
+//-     button(type='button' class='absolute top-0 bottom-0 right-0 px-4 py-3' data-bs-dismiss='alert' aria-label='Close') &times;
+
+//- if messages.success
+//-   .bg-green-100.border.border-green-400.text-green-700.px-4.py-3.rounded.relative(role='alert')
+//-     for success in messages.success
+//-       div= success.msg
+//-     button(type='button' class='absolute top-0 bottom-0 right-0 px-4 py-3' data-bs-dismiss='alert' aria-label='Close') &times;
+
+//- Add dismiss functionality
+script.
+  document.querySelectorAll('.btn-dismiss').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      document.querySelectorAll('.alert').forEach(function(alert) {
+        alert.style.display = 'none';
+      });
+    });
+  });
