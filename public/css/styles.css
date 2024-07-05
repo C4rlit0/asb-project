@@ -3220,6 +3220,10 @@ html:has(.drawer-toggle:checked) {
   z-index: 1;
 }
 
+.z-10 {
+  z-index: 10;
+}
+
 .order-first {
   order: -9999;
 }
