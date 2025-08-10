@@ -59,9 +59,15 @@ const User = {
     }
   },
   findById: async function (id) {
-    console.log('Find user by id:', id)
-    const record = await usersTable.find(id);
-    return record;
+    console.log('Find user by id:', id);
+    try {
+      const record = await usersTable.find(id);
+      return record;
+    } catch (error) {
+      // If the user is not found, Airtable throws an error.
+      // We catch it and return null.
+      return null;
+    }
   },
   comparePassword: async function (user, candidatePassword) {
     return await bcrypt.compare(candidatePassword, user.fields.PASSWORD);
