@@ -5,7 +5,6 @@ Get the home page
 exports.index = (req, res) => {
   // Check if user is connected
   if (req.user) {
-    console.log('req.user:', req.user);
     // Check if user has completed the onboarding process
     if (req.user.onboardingStatus) {
       // Redirect to /dashboard if onboarding is completed
