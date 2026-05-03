@@ -24,13 +24,11 @@ exports.getApi = (req, res) => {
  * List connected user informations
  */
 exports.getProfile = (req, res) => {
-  console.log("REQ: ", req.user)
   res.status(200).json({
     name: req.user.fields.NAME,
     email: req.user.fields.EMAIL,
-    ghp: req.user.fields.GITHUB_PAT,
     gho: req.user.fields.GITHUB_OWNER,
-    ghr: req.user.fields.GITHUB_REPO
+    ghr: req.user.fields.GITHUB_REPO,
   });
 };
 

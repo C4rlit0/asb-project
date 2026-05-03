@@ -65,6 +65,17 @@ const upload = multer({ dest: path.join(__dirname, 'uploads') });
 dotenv.config({ path: '.env' });
 
 /**
+ * Validate required environment variables before starting the app.
+ */
+const REQUIRED_ENV = ['AIRTABLE_API_KEY', 'AIRTABLE_BASE_ID', 'SESSION_SECRET', 'BASE_URL'];
+const missingEnv = REQUIRED_ENV.filter((key) => !process.env[key]);
+if (missingEnv.length) {
+  console.error(`ERROR: Missing required environment variables: ${missingEnv.join(', ')}`);
+  console.error('Please check your .env file and refer to .env.example for the required variables.');
+  process.exit(1);
+}
+
+/**
  * Set config values
  */
 const secureTransfer = (process.env.BASE_URL.startsWith('https'));
@@ -196,13 +207,15 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(limiter);
 app.use(session({
-  resave: true,
-  saveUninitialized: true,
+  resave: false,
+  saveUninitialized: false,
   secret: process.env.SESSION_SECRET,
   // name: 'startercookie', // change the cookie name for additional security in production
   cookie: {
     maxAge: 1209600000, // Two weeks in milliseconds
-    secure: secureTransfer
+    secure: secureTransfer,
+    sameSite: 'lax',
+    httpOnly: true,
   },
 
   // Store the session in Airtable instead of memory

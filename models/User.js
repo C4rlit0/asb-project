@@ -42,8 +42,9 @@ const User = {
     return await usersTable.create(user);
   },
   findByEmail: async function (email) {
+    const safeEmail = email.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
     const records = await usersTable
-      .select({ view: process.env.AIRTABLE_ALL_USERS_VIEW, filterByFormula: `EMAIL = "${email}"` })
+      .select({ view: process.env.AIRTABLE_ALL_USERS_VIEW, filterByFormula: `EMAIL = "${safeEmail}"` })
       .firstPage();
     if (records.length > 0) {
       
@@ -54,12 +55,10 @@ const User = {
       
       return { id, fields };
     } else {
-      console.log('No records found');
       return null;
     }
   },
   findById: async function (id) {
-    console.log('Find user by id:', id)
     const record = await usersTable.find(id);
     return record;
   },
@@ -122,7 +121,6 @@ const User = {
     await this.setSettings(user, settings);
   },
   gravatar: function (email, size) {
-    console.log('email:', email);
     if (!size) {
       size = 200;
     }
@@ -133,7 +131,6 @@ const User = {
     return `https://gravatar.com/avatar/${md5}?s=${size}&d=retro`;
   },
   softDelete: function (user) {
-    console.log('softDelete:', user);
     return usersTable.update(user, { DELETED: true });
   }
 };

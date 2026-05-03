@@ -2,85 +2,83 @@ const validator = require('validator');
 const User = require('../models/User');
 
 /**
- * GET /
+ * GET /account/settings
  * Settings page.
  */
 exports.getSettings = async (req, res) => {
-
   res.render('account/settings', {
     title: 'Update your settings',
   });
 };
 
 /**
- * POST /settings
- * Settings page.
+ * POST /account/settings
+ * Update GitHub repo URL and PAT.
  */
 exports.postSettings = async (req, res, next) => {
-  // This function receives the POST request from the onboarding form with github repo URL and PAT token
   const validationErrors = [];
-  if (!validator.isURL(req.body.floatingInputRepo)) validationErrors.push({ msg: 'Please enter a valid GitHub repository URL.' });
-  if (!validator.isLength(req.body.floatingInputPat, { min: 90, max: 100 })) validationErrors.push({ msg: 'Please enter a valid GitHub personal access token.' });
+
+  // Validate URL format
+  if (!validator.isURL(req.body.floatingInputRepo)) {
+    validationErrors.push({ msg: 'Please enter a valid GitHub repository URL.' });
+  } else {
+    try {
+      const parsedUrl = new URL(req.body.floatingInputRepo);
+      if (parsedUrl.hostname !== 'github.com') {
+        validationErrors.push({ msg: 'Please enter a valid GitHub repository URL (github.com only).' });
+      }
+    } catch {
+      validationErrors.push({ msg: 'Please enter a valid GitHub repository URL.' });
+    }
+  }
+
+  if (!validator.isLength(req.body.floatingInputPat, { min: 10 })) {
+    validationErrors.push({ msg: 'Please enter a valid GitHub personal access token.' });
+  }
 
   if (validationErrors.length) {
     req.flash('errors', validationErrors);
-    return res.redirect('/onboarding');
+    return res.redirect('/account/settings');
   }
 
   try {
-    // Get the user from the database
-    const user = await User.findById(req.user.id);
+    const username = req.body.floatingInputRepo.split('/')[3];
+    const repoName = req.body.floatingInputRepo.split('/')[4];
 
-    if (!user) {
-      throw new Error('User not found.');
+    if (!username || !repoName) {
+      req.flash('errors', { msg: 'Please enter a valid GitHub repository URL (format: https://github.com/owner/repo).' });
+      return res.redirect('/account/settings');
     }
 
-    // Extract username from GitHub repo URL
-    const username = req.body.floatingInputRepo.split('/')[3];
-
-    // Test if Github PAT is valid to fetch repo infos
-    const response = await fetch(`https://api.github.com/repos/${username}/${req.body.floatingInputRepo.split('/')[4]}`, {
+    const response = await fetch(`https://api.github.com/repos/${username}/${repoName}`, {
       method: 'GET',
-      headers: {
-        Authorization: `token ${req.body.floatingInputPat}`
-      }
+      headers: { Authorization: `token ${req.body.floatingInputPat}` },
     });
 
-    // Extract repo infos from response
+    if (!response.ok) {
+      throw new Error('Invalid GitHub personal access token or repository not found.');
+    }
+
     const repo = await response.json();
     const repoInfos = {
       name: repo.name,
       owner: repo.owner.login,
-      description: repo.description ? repo.description : '',
+      description: repo.description || '',
       creationDate: repo.created_at,
       private: repo.private,
     };
 
-    // If the response is not 200, the PAT is invalid
-    if (response.status !== 200) {
-      throw new Error('Invalid GitHub personal access token.');
-    }
+    await User.setGithubSettings(req.user.id, {
+      username,
+      token: req.body.floatingInputPat,
+      repository: repoInfos,
+    });
 
-    // If the response is 200, we can save the Github settings
-    if (response.status === 200) {
-      user.setSettings({
-        github: {
-          enabled: false,
-          username,
-          token: req.body.floatingInputPat,
-        }
-      });
-      await user.save();
-
-      req.flash('success', { msg: 'Your repo/PAT is valid!' });
-      // Redirect to the next step of the onboarding and pass the repo infos
-      return res.redirect(`/onboarding/nextstep?step=2&repo=${repoInfos.name}&owner=${repoInfos.owner}&description=${repoInfos.description}&creationDate=${repoInfos.creationDate}&private=${repoInfos.private}`);
-    }
-    req.flash('errors', { msg: 'An error occurred while updating your settings. Please contact me at charly@keeply.fr' });
-    return res.redirect('/onboarding');
+    req.flash('success', { msg: 'Your GitHub settings have been updated.' });
+    return res.redirect('/account/settings');
   } catch (error) {
-    console.error(error);
-    req.flash('errors', { msg: 'An error occurred while updating your settings.' });
-    return res.redirect('/onboarding');
+    console.error('postSettings error:', error);
+    req.flash('errors', { msg: error.message || 'An error occurred while updating your settings.' });
+    return res.redirect('/account/settings');
   }
 };

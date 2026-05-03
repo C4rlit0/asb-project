@@ -1,51 +1,13 @@
 const { promisify } = require('util');
 const crypto = require('crypto');
-const nodemailer = require('nodemailer');
 const passport = require('passport');
 const _ = require('lodash');
 const validator = require('validator');
 const mailChecker = require('mailchecker');
 const User = require('../models/User');
+const { sendMail } = require('../services/mailer');
 
 const randomBytesAsync = promisify(crypto.randomBytes);
-
-/**
- * Helper Function to Send Mail.
- */
-const sendMail = (settings) => {
-  const transportConfig = {
-    host: process.env.SMTP_HOST,
-    port: 465,
-    secure: true,
-    auth: {
-      type: 'login',
-      user: process.env.SMTP_USER,
-      pass: process.env.SMTP_PASSWORD
-    }
-  };
-
-  let transporter = nodemailer.createTransport(transportConfig);
-
-  return transporter.sendMail(settings.mailOptions)
-    .then(() => {
-      settings.req.flash(settings.successfulType, { msg: settings.successfulMsg });
-    })
-    .catch((err) => {
-      if (err.message === 'self signed certificate in certificate chain') {
-        console.log('WARNING: Self signed certificate in certificate chain. Retrying with the self signed certificate. Use a valid certificate if in production.');
-        transportConfig.tls = transportConfig.tls || {};
-        transportConfig.tls.rejectUnauthorized = false;
-        transporter = nodemailer.createTransport(transportConfig);
-        return transporter.sendMail(settings.mailOptions)
-          .then(() => {
-            settings.req.flash(settings.successfulType, { msg: settings.successfulMsg });
-          });
-      }
-      console.log(settings.loggingError, err);
-      settings.req.flash(settings.errorType, { msg: settings.errorMsg });
-      return err;
-    });
-};
 
 /**
  * GET /login
@@ -81,7 +43,6 @@ exports.postLogin = (req, res, next) => {
       return res.redirect('/login');
     }
     req.logIn(user, (err) => {
-      console.log('hello user :', user);
       if (err) { return next(err); }
       req.flash('success', { msg: 'Success! You are logged in.' });
       res.redirect(req.session.returnTo || '/');
@@ -95,9 +56,9 @@ exports.postLogin = (req, res, next) => {
  */
 exports.logout = (req, res) => {
   req.logout((err) => {
-    if (err) console.log('Error : Failed to logout.', err);
+    if (err) console.error('Error: Failed to logout.', err);
     req.session.destroy((err) => {
-      if (err) console.log('Error : Failed to destroy the session during logout.', err);
+      if (err) console.error('Error: Failed to destroy the session during logout.', err);
       req.user = null;
       res.redirect('/');
     });
@@ -154,7 +115,6 @@ exports.postSignup = async (req, res, next) => {
  * Profile page.
  */
 exports.getAccount = (req, res) => {
-  console.log('getAccount - User:', req.user);
   res.render('account/profile', {
     title: 'Account'
   });
@@ -223,9 +183,9 @@ exports.postDeleteAccount = async (req, res, next) => {
   try {
     await User.softDelete(id);
     req.logout((err) => {
-      if (err) console.log('Error: Failed to logout.', err);
+      if (err) console.error('Error: Failed to logout.', err);
       req.session.destroy((err) => {
-        if (err) console.log('Error: Failed to destroy the session during account deletion.', err);
+        if (err) console.error('Error: Failed to destroy the session during account deletion.', err);
         req.user = null;
         res.redirect('/');
       });
